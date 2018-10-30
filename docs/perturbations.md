@@ -1,16 +1,15 @@
-# Ph.D. Plan
+# Pertubrations
 
-In short, the plan is to do the following:
+The goal is to develop a method as follows:
 
-## 1. Method Development
 - **Description:** develop a method for evaluating the stability of analyses, relating the output variation to imposed input variation.
 - **Purpose:** to enable the study of relative stability of analyses with respect to arbitrary changes on the initial condition.
 - **Goals:** a metric or method that enables characterizing the stability of tools or claims for the purposes of comparison and ultimate selection of tools or parameterizations that lead to more stable results.
 
 
-#### Plan
+In short, the types of comparisons that can be made are the following:
 
-## 2a. Studying Data Perturbations
+### 1. Data Perturbations
 - **Description:** apply this method to evaluate the stability of neuroimaging processing tools with respect to the addition of noise
 - **Type of change:** 1-voxel noise, rician noise, acquisition noise (from TRT datasets across aligned sessions), participant noise (from subjects in the same dataset/acquisition sequence)
 - **Purpose:** verify the stability of neuroimaging processing tools
@@ -19,7 +18,7 @@ In short, the plan is to do the following:
 - **Result:** a curve showing the stability of the feature above  with respect to different degrees of changes on input data
 
 
-## 2b. Studying Data Permutations
+### 2. Data Permutations
 - **Description:** apply this method to evaluate the stability of neuroimaging analyses with respect to changing datasets
 - **Type of change:** datasets
 - **Purpose:** evaluate the stability of tools or models across subjects
@@ -28,7 +27,7 @@ In short, the plan is to do the following:
 - **Result:** a curve showing the stability of the model with respect to changes in subject inclusion in a dataset
 
 
-## 2c. Studying Tool Permutations
+### 3. Tool Permutations
 - **Description:** apply this method to evaluate the stability of neuroimaging analyses with respect to changing processing tools.
 - **Type of change:** processing parameters or entire tools
 - **Purpose:** compare the stability of results across parameter choices
