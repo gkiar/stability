@@ -8,9 +8,9 @@ import numpy as np
 def checker(dat1, dat2, bins=8):
     assert(dat1.shape == dat2.shape)
     lims = tuple(np.linspace(0, d, num=bins, dtype=int) for d in dat2.shape)    
-    x1s = lims[0]
-    x2s = lims[1]
-    x3s = lims[2]
+    x1s = lims[0] + dat2.shape[0]
+    x2s = lims[1] + dat2.shape[1]
+    x3s = lims[2] + dat2.shape[2]
     
     dat3 = np.zeros_like(dat1)
     for idx, x1 in enumerate(x1s[0:]):
