@@ -52,6 +52,7 @@ def main():
     results = parser.parse_args()
     verb = results.verbose
     outdir = results.output_dir
+    execute('mkdir -p {0}'.format(outdir))
 
     if verb:
         print("BIDS Dir: {0}".format(results.bids_dir))
@@ -116,13 +117,31 @@ def main():
 
     complete_collection = []
     for col in collections:
-        col["dwi_brain"] = "/Users/gkiar/Desktop/brainy.nii.gz"
+        dwibn = op.basename(col["dwi"]).split('.')[0]
+        subses = op.join('sub-{0}'.format(col['subject']),
+                         'ses-{0}'.format(col['session']))
+
         # Step 1: Brain extraction of DWI volumes
-        fsl.bet(col["dwi"], col["dwi_brain"], "-m", "-n", "-F")
+        betdir = op.join(outdir, "bet", subses)
+        execute('mkdir -p {0}'.format(betdir))
+
+        col["dwi_brain"] = op.join(betdir, dwibn + "_brain.nii.gz")
+        col["dwi_mask"] = op.join(betdir, dwibn + "_brain_mask.nii.gz")
+        execute(fsl.bet(col["dwi"], col["dwi_brain"], "-m", "-n", "-F"))
 
         # Step 2: Produce prelimary DTIfit QC figures
+        dtifitdir = op.join(outdir, "dtifit", subses)
+        execute("mkdir -p {0}".format(dtifitdir))
+
+        col["dwi_qc_pre"] = op.join(dtifitdir, dwibn + "_pre")
+        execute(fsl.dtifit(col["dwi"], col["dwi_qc_pre"],
+                           col["dwi_mask"], col["bvec"], col["bval"]))
 
         # Step 3: Perform topup correction
+        # get b0 volumes
+        # make even number of voxels?
+        # create acq file
+        # run topup
 
         # Step 4: Perform eddy correction
 

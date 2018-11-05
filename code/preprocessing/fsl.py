@@ -18,6 +18,15 @@ def bet(inp, outp, *flags):
             "{2}".format(inp, outp, flags))
 
 
+def dtifit(dwi, output, mask, bvec, bval):
+    return ("dtifit "
+            "-k {0} "
+            "-o {1} "
+            "-m {2} "
+            "-r {3} "
+            "-b {4} ".format(dwi, output, mask, bvec, bval))
+
+
 def eddy(dwi, brain, acq, ind, bvec, bval, topup, out, exe="eddy"):
     return ("{} ".format(exe) +
             "--imain={0} "
