@@ -8,6 +8,8 @@ import os.path as op
 from bids.layout import BIDSLayout
 import nibabel as nib
 
+import fsl
+
 
 def execute(cmd, verbose=True):
     try:
@@ -92,24 +94,43 @@ def main():
                                return_type="file")
             if (all(any(ftype in fl for fl in tf_dwi) for ftype in ftypes) and
                     any(ftypes[0] in fl for fl in tf_anat)):
-                    collections += [{"subject": subj, "session": sess}]
+
+                    collections += [{"subject": subj,
+                                     "session": sess,
+                                     "anat": [t
+                                              for t in tf_anat
+                                              if ftypes[0] in t][0],
+                                     "bval": [t
+                                              for t in tf_dwi
+                                              if ftypes[1] in t][0],
+                                     "bvec": [t
+                                              for t in tf_dwi
+                                              if ftypes[2] in t][0],
+                                     "dwi": [t
+                                             for t in tf_dwi
+                                             if ftypes[0] in t][0]}]
             else:
                 if verb:
                     print("Skipping sub-{0}".format(subj) +
                           " / ses-{0} due to missing data.".format(sess))
 
-    # Step 1: Brain extraction of DWI volumes
+    complete_collection = []
+    for col in collections:
+        col["dwi_brain"] = "/Users/gkiar/Desktop/brainy.nii.gz"
+        # Step 1: Brain extraction of DWI volumes
+        fsl.bet(col["dwi"], col["dwi_brain"], "-m", "-n", "-F")
 
-    # Step 2: Produce prelimary DTIfit QC figures
+        # Step 2: Produce prelimary DTIfit QC figures
 
-    # Step 3: Perform topup correction
+        # Step 3: Perform topup correction
 
-    # Step 4: Perform eddy correction
+        # Step 4: Perform eddy correction
 
-    # Step 5: Registration to template
+        # Step 5: Registration to template
 
-    # cmd = "echo Hi, {}".format(filename)
-    # execute(cmd, verbose=verb)
+        complete_collection += [col]
+        # cmd = "echo Hi, {}".format(filename)
+        # execute(cmd, verbose=verb)
 
 
 if __name__ == "__main__":
