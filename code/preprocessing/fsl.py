@@ -71,8 +71,6 @@ def fslroi(inp, outp, *loc):
 
 def topup(b0s, acq, outp, bmask, mode="b02b0.cnf"):
     try:
-        assert(all((not f.endswith(('.nii', '.nii.gz'))
-                   for f in [b0s, outp, bmask])))
         return ("topup "
                 "--imain={0} "
                 "--datain={1} "

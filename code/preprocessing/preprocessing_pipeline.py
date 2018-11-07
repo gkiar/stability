@@ -7,6 +7,7 @@ import os.path as op
 
 from bids.layout import BIDSLayout
 import nibabel as nib
+import numpy as np
 
 import fsl
 
@@ -123,25 +124,60 @@ def main():
 
         # Step 1: Brain extraction of DWI volumes
         betdir = op.join(outdir, "bet", subses)
-        execute('mkdir -p {0}'.format(betdir))
+        # execute('mkdir -p {0}'.format(betdir))
 
         col["dwi_brain"] = op.join(betdir, dwibn + "_brain.nii.gz")
         col["dwi_mask"] = op.join(betdir, dwibn + "_brain_mask.nii.gz")
-        execute(fsl.bet(col["dwi"], col["dwi_brain"], "-m", "-n", "-F"))
+        # execute(fsl.bet(col["dwi"], col["dwi_brain"], "-m", "-n", "-F"))
 
         # Step 2: Produce prelimary DTIfit QC figures
         dtifitdir = op.join(outdir, "dtifit", subses)
-        execute("mkdir -p {0}".format(dtifitdir))
+        # execute("mkdir -p {0}".format(dtifitdir))
 
         col["dwi_qc_pre"] = op.join(dtifitdir, dwibn + "_pre")
-        execute(fsl.dtifit(col["dwi"], col["dwi_qc_pre"],
-                           col["dwi_mask"], col["bvec"], col["bval"]))
+        # execute(fsl.dtifit(col["dwi"], col["dwi_qc_pre"],
+        #                    col["dwi_mask"], col["bvec"], col["bval"]))
 
         # Step 3: Perform topup correction
-        # get b0 volumes
         # make even number of voxels?
-        # create acq file
-        # run topup
+        topupdir = op.join(outdir, "topup", subses)
+        execute("mkdir -p {0}".format(topupdir))
+
+        # Get B0 locations
+        with open(col["bval"]) as fhandle:
+            bvals = fhandle.read().split(" ")
+            bvals = [int(b) for b in bvals if b != '']
+            b0_loc = [i for i, b in enumerate(bvals) if b == np.min(bvals)]
+
+        # Get B0 volumes
+        col["b0_scans"] = []
+        for idx, b0 in enumerate(b0_loc):
+            b0ind = "b0_{0}".format(idx)
+            col["b0_scans"] += [op.join(topupdir,
+                                        dwibn + "_" + b0ind + ".nii.gz")]
+            execute(fsl.fslroi(col["dwi_brain"], col["b0_scans"][-1], *[b0, 1]))
+
+        # Merge B0 volumes
+        col["b0s"] = op.join(topupdir, dwibn + "_b0s.nii.gz")
+        execute(fsl.fslmerge(col["b0s"], *col["b0_scans"]))
+
+        # Create acquisition parameters file
+        col["acqparams"] = op.join(topupdir, dwibn + "_acq.txt")
+        acqs = {"i": "1 0 0", "i-": "-1 0 0",
+                "j": "0 1 0", "j-": "0 -1 0",
+                "k": "0 0 1", "k-": "0 0 -1"}
+        with open(col["acqparams"], 'w') as fhandle:
+            meta = dset.get_metadata(path=col["dwi"])
+            pedir = meta["PhaseEncodingDirection"]
+            trout = meta["TotalReadoutTime"]
+            for i in b0_loc:
+                fhandle.write("{0} {1}\n".format(acqs[pedir], trout))
+
+        # Run topup
+        col["topup"] = op.join(topupdir, dwibn + "_topup")
+        col["hifi_b0"] = op.join(topupdir, dwibn + "_hifi_b0")
+        execute(fsl.topup(col["b0s"], col["acqparams"],
+                          col["topup"], col["hifi_b0"]))
 
         # Step 4: Perform eddy correction
 
