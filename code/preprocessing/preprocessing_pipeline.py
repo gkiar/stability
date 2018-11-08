@@ -14,6 +14,7 @@ import fsl
 
 def execute(cmd, verbose=True):
     try:
+        print(cmd)
         p = Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE)
         log = []
         while True:
@@ -122,26 +123,11 @@ def main():
         subses = op.join('sub-{0}'.format(col['subject']),
                          'ses-{0}'.format(col['session']))
 
-        # Step 1: Brain extraction of DWI volumes
-        betdir = op.join(outdir, "bet", subses)
-        # execute('mkdir -p {0}'.format(betdir))
-
-        col["dwi_brain"] = op.join(betdir, dwibn + "_brain.nii.gz")
-        col["dwi_mask"] = op.join(betdir, dwibn + "_brain_mask.nii.gz")
-        # execute(fsl.bet(col["dwi"], col["dwi_brain"], "-m", "-n", "-F"))
-
-        # Step 2: Produce prelimary DTIfit QC figures
-        dtifitdir = op.join(outdir, "dtifit", subses)
-        # execute("mkdir -p {0}".format(dtifitdir))
-
-        col["dwi_qc_pre"] = op.join(dtifitdir, dwibn + "_pre")
-        # execute(fsl.dtifit(col["dwi"], col["dwi_qc_pre"],
-        #                    col["dwi_mask"], col["bvec"], col["bval"]))
-
-        # Step 3: Perform topup correction
-        # make even number of voxels?
+        # Step 1: Perform topup correction
         topupdir = op.join(outdir, "topup", subses)
         execute("mkdir -p {0}".format(topupdir))
+
+        # Make even number of spatial voxels (req'd for eddy for some reason)
 
         # Get B0 locations
         with open(col["bval"]) as fhandle:
@@ -155,11 +141,13 @@ def main():
             b0ind = "b0_{0}".format(idx)
             col["b0_scans"] += [op.join(topupdir,
                                         dwibn + "_" + b0ind + ".nii.gz")]
-            execute(fsl.fslroi(col["dwi_brain"], col["b0_scans"][-1], *[b0, 1]))
+            execute(fsl.fslroi(col["dwi"], col["b0_scans"][-1], *[b0, 1]),
+                    verbose=verb)
 
         # Merge B0 volumes
         col["b0s"] = op.join(topupdir, dwibn + "_b0s.nii.gz")
-        execute(fsl.fslmerge(col["b0s"], *col["b0_scans"]))
+        execute(fsl.fslmerge(col["b0s"], *col["b0_scans"]),
+                verbose=verb)
 
         # Create acquisition parameters file
         col["acqparams"] = op.join(topupdir, dwibn + "_acq.txt")
@@ -170,22 +158,57 @@ def main():
             meta = dset.get_metadata(path=col["dwi"])
             pedir = meta["PhaseEncodingDirection"]
             trout = meta["TotalReadoutTime"]
-            for i in b0_loc:
-                fhandle.write("{0} {1}\n".format(acqs[pedir], trout))
+            line = "{0} {1}".format(acqs[pedir], trout)
+            fhandle.write("\n".join([line] * len(b0_loc)))
 
         # Run topup
         col["topup"] = op.join(topupdir, dwibn + "_topup")
         col["hifi_b0"] = op.join(topupdir, dwibn + "_hifi_b0")
         execute(fsl.topup(col["b0s"], col["acqparams"],
-                          col["topup"], col["hifi_b0"]))
+                          col["topup"], col["hifi_b0"]),
+                verbose=verb)
+        execute(fsl.fslmaths(col["hifi_b0"], "-Tmean", col["hifi_b0"]),
+                verbose=verb)
+
+        # Step 2: Brain extraction of HiFi B0 volumes
+        betdir = op.join(outdir, "bet", subses)
+        execute('mkdir -p {0}'.format(betdir))
+
+        col["hifi_b0_brain"] = op.join(betdir, dwibn + "_hifi_brain.nii.gz")
+        col["hifi_b0_mask"] = op.join(betdir, dwibn + "_hifi_brain_mask.nii.gz")
+        col["dwi_brain"] = op.join(betdir, dwibn + "_brain.nii.gz")
+        execute(fsl.bet(col["hifi_b0"], col["hifi_b0_brain"], "-m"),
+                verbose=verb)
+        execute(fsl.bet(col["dwi"], col["dwi_brain"], "-F"),
+                verbose=verb)
+
+        # Step 3: Produce prelimary DTIfit QC figures
+        dtifitdir = op.join(outdir, "dtifit", subses)
+        execute("mkdir -p {0}".format(dtifitdir))
+
+        col["dwi_qc_pre"] = op.join(dtifitdir, dwibn + "_pre")
+        execute(fsl.dtifit(col["dwi"], col["dwi_qc_pre"], col["hifi_b0_mask"],
+                           col["bvec"], col["bval"]),
+                verbose=verb)
 
         # Step 4: Perform eddy correction
+        # eddydir = op.join(outdir, "eddy", subses)
+        # execute("mkdir -p {0}".format(eddydir))
+
+        # Create index
+        # col["index"] = op.join(eddydir, dwibn + "_index.txt")
+        # with open(col["index"], 'w') as fhandle:
+        #     fhandle.write(" ".join(["1"] * len(bvals)))
+
+        # Run eddy
+        # col["eddy_dwi"] = op.join(eddydir, dwibn + "_eddy")
+        # execute(fsl.eddy(col["dwi"], col["hifi_b0_mask"], col["acqparams"],
+        #                  col["index"], col["bvec"], col["bval"], col["topup"],
+        #                  col["eddy_dwi"], exe="eddy"),
+        #         verbose=verb)
 
         # Step 5: Registration to template
-
         complete_collection += [col]
-        # cmd = "echo Hi, {}".format(filename)
-        # execute(cmd, verbose=verb)
 
 
 if __name__ == "__main__":
