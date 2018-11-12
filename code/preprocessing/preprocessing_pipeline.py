@@ -146,8 +146,7 @@ def main():
 
         # Merge B0 volumes
         col["b0s"] = op.join(topupdir, dwibn + "_b0s.nii.gz")
-        execute(fsl.fslmerge(col["b0s"], *col["b0_scans"]),
-                verbose=verb)
+        execute(fsl.fslmerge(col["b0s"], *col["b0_scans"]), verbose=verb)
 
         # Create acquisition parameters file
         col["acqparams"] = op.join(topupdir, dwibn + "_acq.txt")
@@ -162,50 +161,45 @@ def main():
             fhandle.write("\n".join([line] * len(b0_loc)))
 
         # Run topup
-        col["topup"] = op.join(topupdir, dwibn + "_topup")
-        col["hifi_b0"] = op.join(topupdir, dwibn + "_hifi_b0")
-        execute(fsl.topup(col["b0s"], col["acqparams"],
-                          col["topup"], col["hifi_b0"]),
-                verbose=verb)
-        execute(fsl.fslmaths(col["hifi_b0"], "-Tmean", col["hifi_b0"]),
-                verbose=verb)
+        # TODO: remove; topup only applies with multiple PEs
+        # col["topup"] = op.join(topupdir, dwibn + "_topup")
+        # col["hifi_b0"] = op.join(topupdir, dwibn + "_hifi_b0")
+        # execute(fsl.topup(col["b0s"], col["acqparams"],
+        #                   col["topup"], col["hifi_b0"]),
+        #         verbose=verb)
+        # execute(fsl.fslmaths(col["hifi_b0"], "-Tmean", col["hifi_b0"]),
+        #         verbose=verb)
 
         # Step 2: Brain extraction of HiFi B0 volumes
         betdir = op.join(outdir, "bet", subses)
         execute('mkdir -p {0}'.format(betdir))
 
-        col["hifi_b0_brain"] = op.join(betdir, dwibn + "_hifi_brain.nii.gz")
-        col["hifi_b0_mask"] = op.join(betdir, dwibn + "_hifi_brain_mask.nii.gz")
         col["dwi_brain"] = op.join(betdir, dwibn + "_brain.nii.gz")
-        execute(fsl.bet(col["hifi_b0"], col["hifi_b0_brain"], "-m"),
-                verbose=verb)
-        execute(fsl.bet(col["dwi"], col["dwi_brain"], "-F"),
-                verbose=verb)
+        col["dwi_mask"] = op.join(betdir, dwibn + "_brain_mask.nii.gz")
+        execute(fsl.bet(col["dwi"], col["dwi_brain"], "-F", "-m"), verbose=verb)
 
         # Step 3: Produce prelimary DTIfit QC figures
         dtifitdir = op.join(outdir, "dtifit", subses)
         execute("mkdir -p {0}".format(dtifitdir))
 
         col["dwi_qc_pre"] = op.join(dtifitdir, dwibn + "_pre")
-        execute(fsl.dtifit(col["dwi"], col["dwi_qc_pre"], col["hifi_b0_mask"],
-                           col["bvec"], col["bval"]),
-                verbose=verb)
+        execute(fsl.dtifit(col["dwi_brain"], col["dwi_qc_pre"], col["dwi_mask"],
+                           col["bvec"], col["bval"]), verbose=verb)
 
         # Step 4: Perform eddy correction
-        # eddydir = op.join(outdir, "eddy", subses)
-        # execute("mkdir -p {0}".format(eddydir))
+        eddydir = op.join(outdir, "eddy", subses)
+        execute("mkdir -p {0}".format(eddydir))
 
         # Create index
-        # col["index"] = op.join(eddydir, dwibn + "_index.txt")
-        # with open(col["index"], 'w') as fhandle:
-        #     fhandle.write(" ".join(["1"] * len(bvals)))
+        col["index"] = op.join(eddydir, dwibn + "_index.txt")
+        with open(col["index"], 'w') as fhandle:
+            fhandle.write(" ".join(["1"] * len(bvals)))
 
         # Run eddy
-        # col["eddy_dwi"] = op.join(eddydir, dwibn + "_eddy")
-        # execute(fsl.eddy(col["dwi"], col["hifi_b0_mask"], col["acqparams"],
-        #                  col["index"], col["bvec"], col["bval"], col["topup"],
-        #                  col["eddy_dwi"], exe="eddy"),
-        #         verbose=verb)
+        col["eddy_dwi"] = op.join(eddydir, dwibn + "_eddy")
+        execute(fsl.eddy(col["dwi_brain"], col["dwi_mask"], col["acqparams"],
+                         col["index"], col["bvec"], col["bval"],
+                         col["eddy_dwi"], exe="eddy"), verbose=verb)
 
         # Step 5: Registration to template
         complete_collection += [col]

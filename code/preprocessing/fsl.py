@@ -27,7 +27,7 @@ def dtifit(dwi, output, mask, bvec, bval):
             "-b {4} ".format(dwi, output, mask, bvec, bval))
 
 
-def eddy(dwi, mask, acq, ind, bvec, bval, topup, out, exe="eddy"):
+def eddy(dwi, mask, acq, ind, bvec, bval, out, exe="eddy"):
     return ("{} ".format(exe) +
             "--imain={0} "
             "--mask={1} "
@@ -35,9 +35,8 @@ def eddy(dwi, mask, acq, ind, bvec, bval, topup, out, exe="eddy"):
             "--index={3} "
             "--bvecs={4} "
             "--bvals={5} "
-            "--topup={6} "
             "--repol "
-            "--out={7}".format(dwi, mask, acq, ind, bvec, bval, topup, out))
+            "--out={6}".format(dwi, mask, acq, ind, bvec, bval, out))
 
 
 def fslmaths(*args):
