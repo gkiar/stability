@@ -3,7 +3,7 @@
 import numpy as np
 
 
-def data2sprite(data):
+def d2s(data):
     """ Borrowed directly from:
           https://github.com/SIMEXP/nilearn/blob/
             eea8f93dd5c48bc83958ccaa816b6dccbc4df472/

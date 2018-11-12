@@ -1,0 +1,50 @@
+{
+    "command-line": "plot.py [IMAGE1] [IMAGE2] [OUTFILE] [BOUTIQUES]",
+    "description": "tool description",
+    "inputs": [
+        {
+            "description": "Image for which to generate a QC plot.",
+            "id": "image1",
+            "name": "image1",
+            "optional": false,
+            "type": "String",
+            "value-key": "[IMAGE1]"
+        },
+        {
+            "command-line-flag": "--image2",
+            "description": "Optional image to checkerboard with the first.",
+            "id": "image2",
+            "name": "image2",
+            "optional": true,
+            "type": "String",
+            "value-key": "[IMAGE2]"
+        },
+        {
+            "command-line-flag": "--outfile",
+            "description": "Filename for output plot. If not specified, will inherit the image1 path.",
+            "id": "outfile",
+            "name": "outfile",
+            "optional": true,
+            "type": "String",
+            "value-key": "[OUTFILE]"
+        },
+        {
+            "command-line-flag": "--boutiques",
+            "description": "If enabled, will generate a new Boutiques descriptor and an invocation corresponding to the current inputs.",
+            "id": "boutiques",
+            "name": "boutiques",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[BOUTIQUES]"
+        }
+    ],
+    "name": "tool name",
+    "schema-version": "0.5",
+    "suggested-resources": {
+        "cpu-cores": 1,
+        "ram": 1,
+        "walltime-estimate": 60
+    },
+    "tags": {},
+    "tool-version": "v0.1.0"
+}
