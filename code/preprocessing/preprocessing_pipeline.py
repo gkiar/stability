@@ -35,23 +35,53 @@ def execute(cmd, verbose=True):
         return log
 
 
-def create_acquisitions():
-    pass
+def makeParser():
+    parser = ArgumentParser(__file__, description="Preprocessing pipeline for "
+                            "DWI data using FSL's eddy.")
+    parser.add_argument("bids_dir", action="store",
+                        help="Directory to a BIDS-organized dataset.")
+    parser.add_argument("output_dir", action="store",
+                        help="Directory to store the preprocessed derivatives.")
+    parser.add_argument("analysis_level", action="store", choices=["session"],
+                        help="Level of analysis to perform. Options: session")
+    parser.add_argument("--participant_label", "-p", action="store", nargs="*",
+                        help="Label of the participant(s) to process, omitting "
+                        "the 'sub-' portion of the directory name. Supplying "
+                        "none means the entire dataset will be processed.")
+    parser.add_argument("--session_label", "-s", action="store", nargs="*",
+                        help="Label of the session(s) to process, omitting the "
+                        "'ses-' portion of the directory name. Supplying none "
+                        "means the entire dataset will be processed.")
+    parser.add_argument("--verbose", "-v", action="store_true",
+                        help="Flag toggling verbose output statements.")
+    parser.add_argument("--boutiques", action="store_true",
+                        help="Flag toggling descriptor creation.")
+    return parser
+
+
+def createDescriptor(parser, arguments):
+    import boutiques.creator as bc
+    import os.path as op
+    import json
+
+    desc = bc.CreateDescriptor(parser, execname=op.basename(__file__))
+    basename = op.splitext(__file__)[0]
+    desc.save(basename + ".json")
+    invo = desc.createInvocation(arguments)
+    invo.pop("boutiques")
+
+    with open(basename + "_inputs.json", "w") as fhandle:
+        fhandle.write(json.dumps(invo, indent=4))
 
 
 def main():
-    parser = ArgumentParser()
-    parser.add_argument("bids_dir", action="store")
-    parser.add_argument("output_dir", action="store")
-    parser.add_argument("analysis_level", action="store",
-                        choices=["session"])
-    parser.add_argument("--participant_label", "-p", action="store",
-                        nargs="*")
-    parser.add_argument("--session_label", "-s", action="store",
-                        nargs="*")
-    parser.add_argument("--verbose", "-v", action="store_true")
-
+    parser = makeParser()
     results = parser.parse_args()
+
+    if results.boutiques:
+        createDescriptor(parser, results)
+        return 0
+
     verb = results.verbose
     outdir = results.output_dir
     execute('mkdir -p {0}'.format(outdir))

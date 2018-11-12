@@ -1,0 +1,7 @@
+{
+    "bids_dir": "/data/RocklandSample/",
+    "output_dir": "/data/RocklandSample/derivatives/",
+    "analysis_level": "session",
+    "verbose": true,
+    "participant_label": "A00019903"
+}
