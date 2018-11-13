@@ -8,6 +8,7 @@ import png
 import checkerboard
 from data2sprite import d2s
 
+
 def makeParser():
     parser = ArgumentParser()
     parser.add_argument("image1", action="store",
@@ -53,6 +54,9 @@ def main():
         i = i1
 
     d = i.get_data()
+    if len(d.shape) == 4:
+        d = d[:,:,:,0]
+
     sprite = d2s(d).astype(np.uint8)
     my = png.from_array(sprite, 'L').save('tmp.png')
 
