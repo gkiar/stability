@@ -13,11 +13,10 @@ def makeParser():
     parser = ArgumentParser()
     parser.add_argument("image1", action="store",
                         help="Image for which to generate a QC plot.")
+    parser.add_argument("outfile", action="store",
+                        help="Filename for output plot.")
     parser.add_argument("--image2", action="store",
                         help="Optional image to checkerboard with the first.")
-    parser.add_argument("--outfile", action="store",
-                        help="Filename for output plot. If not specified, will "
-                        "inherit the image1 path.")
     parser.add_argument("--boutiques", action="store_true",
                         help="If enabled, will generate a new Boutiques "
                         "descriptor and an invocation corresponding to the "
@@ -58,7 +57,7 @@ def main():
         d = d[:,:,:,0]
 
     sprite = d2s(d).astype(np.uint8)
-    my = png.from_array(sprite, 'L').save('tmp.png')
+    my = png.from_array(sprite, 'L').save(results.outfile)
 
 
 if __name__ == "__main__":
