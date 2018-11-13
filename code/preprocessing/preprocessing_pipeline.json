@@ -39,6 +39,7 @@
             "id": "participant_label",
             "name": "participant_label",
             "optional": true,
+            "list": true,
             "type": "String",
             "value-key": "[PARTICIPANT_LABEL]"
         },
