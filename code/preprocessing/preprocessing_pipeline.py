@@ -84,7 +84,6 @@ def main():
 
     verb = results.verbose
     outdir = results.output_dir
-    execute('mkdir -p {0}'.format(outdir))
 
     if verb:
         print("BIDS Dir: {0}".format(results.bids_dir))
