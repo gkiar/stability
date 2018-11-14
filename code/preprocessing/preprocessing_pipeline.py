@@ -14,7 +14,7 @@ import fsl
 
 def execute(cmd, verbose=True):
     try:
-        print(cmd)
+        print(cmd, flush=True)
         p = Popen(cmd, shell=True, stderr=PIPE, stdout=PIPE)
         log = []
         while True:
@@ -23,7 +23,7 @@ def execute(cmd, verbose=True):
                 break
             log += [line]
             if verbose:
-                print(line)
+                print(line, flush=True)
         sout, serr = [tmp.decode('utf-8') for tmp in p.communicate()]
         if serr is not '':
             raise Exception(serr)
@@ -86,9 +86,9 @@ def main():
     outdir = results.output_dir
 
     if verb:
-        print("BIDS Dir: {0}".format(results.bids_dir))
-        print("Output Dir: {0}".format(results.output_dir))
-        print("Analysis level: {0}".format(results.analysis_level))
+        print("BIDS Dir: {0}".format(results.bids_dir), flush=True)
+        print("Output Dir: {0}".format(results.output_dir), flush=True)
+        print("Analysis level: {0}".format(results.analysis_level), flush=True)
 
     # This preprocessing workflow is modified from the FSL recommendations here:
     #    https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FDT/UserGuide
@@ -102,7 +102,8 @@ def main():
                     if pl in subjects]
         assert(len(subjects) > 0)
     if verb:
-        print("Participants: {0}".format(", ".join(s for s in subjects)))
+        print("Participants: {0}".format(", ".join(s for s in subjects)),
+              flush=True)
 
     sessions = dset.get_sessions()
     if results.session_label is not None:
@@ -111,7 +112,7 @@ def main():
                     if sl in sessions]
         assert(len(sessions) > 0)
     if verb:
-        print("Sessions: {0}".format(", ".join(s for s in sessions)))
+        print("Sessions: {0}".format(", ".join(s for s in sessions)), flush=True)
 
     # Step 0, 2: Prune dataset to subjects/sessions that have necessary files
     ftypes = [".nii", ".bval", ".bvec"]
@@ -144,7 +145,8 @@ def main():
             else:
                 if verb:
                     print("Skipping sub-{0}".format(subj) +
-                          " / ses-{0} due to missing data.".format(sess))
+                          " / ses-{0} due to missing data.".format(sess),
+                          flush=True)
 
     complete_collection = []
     for col in collections:
