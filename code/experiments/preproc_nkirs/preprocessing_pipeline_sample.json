@@ -1,0 +1,7 @@
+{
+    "bids_dir": "/project/6008063/gkiar/data/smallRS/",
+    "output_dir": "/project/6008063/gkiar/data/smallRS/derivatives/",
+    "analysis_level": "session",
+    "verbose": true,
+    "participant_label": ["A00013809"]
+}
