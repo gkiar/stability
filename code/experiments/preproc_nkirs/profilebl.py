@@ -1,18 +1,21 @@
 from bids.layout import BIDSLayout
+import cProfile
 import time
 
-start1 = time.time()
-bl = BIDSLayout('/project/6008063/gkiar/data/smallRS')
-dur1 = time.time() - start1
-print("{0}:{1}".format(len(bl.get_subjects()), dur1))
+def myfunc(datadir):
+    start = time.time()
+    bl = BIDSLayout('')
+    dur = time.time() - start
+    print("{0}:{1}".format(len(bl.get_subjects()), dur))
 
 
-start2 = time.time()
-bl = BIDSLayout('/project/6008063/gkiar/data/medRS/')
-dur2 = time.time() - start2
-print("{0}:{1}".format(len(bl.get_subjects()), dur2))
+ddir1 = '/project/6008063/gkiar/data/smallRS/'
+# ddir2 = '/project/6008063/gkiar/data/medRS/'
 
-start3 = time.time()
-bl = BIDSLayout('/project/6008063/gkiar/data/RocklandSample/')
-dur3 = time.time() - start3
-print("{0}:{1}".format(len(bl.get_subjects()), dur3))
+cProfile.run('myfunc(ddir1)')
+# cProfile.run('myfunc(ddir2)')
+
+# start3 = time.time()
+# bl = BIDSLayout('/project/6008063/gkiar/data/RocklandSample/')
+# dur3 = time.time() - start3
+# print("{0}:{1}".format(len(bl.get_subjects()), dur3))
