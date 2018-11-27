@@ -39,6 +39,10 @@ def eddy(dwi, mask, acq, ind, bvec, bval, out, exe="eddy"):
             "--out={6}".format(dwi, mask, acq, ind, bvec, bval, out))
 
 
+def flirt():
+    pass
+
+
 def fslmaths(*args):
     # This isn't super helpful since fslmaths can do anything...
     return ("fslmaths "
