@@ -84,6 +84,7 @@ def main():
 
     verb = results.verbose
     outdir = results.output_dir
+    partis = results.participant_label
 
     if verb:
         print("BIDS Dir: {0}".format(results.bids_dir), flush=True)
@@ -94,7 +95,15 @@ def main():
     #    https://fsl.fmrib.ox.ac.uk/fsl/fslwiki/FDT/UserGuide
 
     # Step 0, 1: Begin interrogation of BIDS dataset
-    dset = BIDSLayout(results.bids_dir)
+
+    # Due to current super-linear slowdown in BIDS Layout, exclude all but
+    # participant of interest.
+    if partis is not None:
+        pattrn = 'sub-(?!{0})(.*)$'.format("|".join(partis))
+    else:
+        pattrn = ''
+
+    dset = BIDSLayout(results.bids_dir, exclude=pattrn)
     subjects = dset.get_subjects()
     if results.participant_label is not None:
         subjects = [pl
