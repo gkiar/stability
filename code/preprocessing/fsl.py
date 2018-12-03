@@ -39,8 +39,57 @@ def eddy(dwi, mask, acq, ind, bvec, bval, out, exe="eddy"):
             "--out={6}".format(dwi, mask, acq, ind, bvec, bval, out))
 
 
-def flirt():
-    pass
+def flirt(inp, ref="/usr/loca/fsl/data/standard/MNI152_T1_2mm_brain",
+          bins=256, cost="corratio", searchrx="-90 90", searchry="-90 90",
+          searchrz="-90 90", dof=12, applyxfm=False, paddingsize=0.0,
+          interp="trilinear", out=None, omat=None, init=None):
+    # flirt(t1, omat=t12mnixfm)
+    # flirt(dwi, ref=t1, omat=dwi2t1xfm)
+    # convert_xfm(concat=t12mnixfm, inp=dwi2t1xfm, omat=totalxfm)
+    # convert_xfm(inverse=totalxfm, inverse=reversexfm)
+    # flirt(parcelation, applyxfm=True, init=reversexfm)
+    if applyxfm:
+        assert(init is not None)
+        assert(out is not None)
+        return ("flirt "
+                "-applyxfm "
+                "-in {0} "
+                "-init {1} "
+                "-out {2} "
+                "-ref {3} "
+                "-paddingsize {4} "
+                "-interp {5} "
+                "".format(inp, init, out, ref, paddingsize, interp))
+    else:
+        assert(omat is not None)
+        return ("flirt "
+                "-in {0} "
+                "-ref {1} "
+                "-omat {2} "
+                "-bins {3} "
+                "-cost {4} "
+                "-searchrx {5} "
+                "-searchry {6} "
+                "-searchrz {7} "
+                "-dof {8}"
+                "".format(inp, ref, omat, bins, cost, searchrx, searchry,
+                          searchrz, dof))
+
+
+def convert_xfm(inp=None, omat=None, inverse=None, concat=None):
+    # convert_xfm(concat=t12mnixfm, inp=dwi2t1xfm, omat=totalxfm)
+    # convert_xfm(inverse=totalxfm, inverse=reversexfm)
+    if inverse:
+        return ("convert_xfm "
+                "-inverse {0} "
+                "-omat {1}"
+                "".format(inverse, omat))
+    elif concat:
+        return ("convert_xfm "
+                "-concat {0} "
+                "-omat {1} "
+                "{2}"
+                "".format(concat, omat, inp))
 
 
 def fslmaths(*args):

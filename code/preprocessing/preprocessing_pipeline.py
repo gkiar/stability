@@ -210,7 +210,7 @@ def main():
         # execute(fsl.fslmaths(col["hifi_b0"], "-Tmean", col["hifi_b0"]),
         #         verbose=verb)
 
-        # Step 2: Brain extraction of HiFi B0 volumes
+        # Step 2: Brain extraction
         betdir = op.join(outdir, "bet", subses)
         execute('mkdir -p {0}'.format(betdir))
 
@@ -242,6 +242,11 @@ def main():
                          col["eddy_dwi"], exe="eddy"), verbose=verb)
 
         # Step 5: Registration to template
+        # fsl.flirt(t1, omat=t12mnixfm)
+        # fsl.flirt(dwi, ref=t1, omat=dwi2t1xfm)
+        # fsl.convert_xfm(concat=t12mnixfm, inp=dwi2t1xfm, omat=totalxfm)
+        # fsl.convert_xfm(inverse=totalxfm, inverse=reversexfm)
+        # fsl.flirt(parcelation, applyxfm=True, init=reversexfm)
         complete_collection += [col]
 
 
