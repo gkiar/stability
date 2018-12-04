@@ -160,6 +160,7 @@ def main():
     complete_collection = []
     for col in collections:
         dwibn = op.basename(col["dwi"]).split('.')[0]
+        anatbn = op.basename(col["anat"]).split('.')[0]
         subses = op.join('sub-{0}'.format(col['subject']),
                          'ses-{0}'.format(col['session']))
 
@@ -242,11 +243,30 @@ def main():
                          col["eddy_dwi"], exe="eddy"), verbose=verb)
 
         # Step 5: Registration to template
-        # fsl.flirt(t1, omat=t12mnixfm)
-        # fsl.flirt(dwi, ref=t1, omat=dwi2t1xfm)
-        # fsl.convert_xfm(concat=t12mnixfm, inp=dwi2t1xfm, omat=totalxfm)
-        # fsl.convert_xfm(inverse=totalxfm, inverse=reversexfm)
-        # fsl.flirt(parcelation, applyxfm=True, init=reversexfm)
+        regdir = op.join(outdir, "reg", subses)
+        execute("mkdir -p {0}".format(regdir))
+
+        col["t1w2mni"] = op.join(regdir, anatbn + "_mni_xfm.mat")
+        execute(fsl.flirt(col["anat"], omat=col["t1w2mni"]), verbose=verb)
+
+        col["dwi2t1w"] = op.join(regdir, dwibn + "_t1w_xfm.mat")
+        execute(fsl.flirt(col["eddy_dwi"], ref=col["anat"],
+                          omat=col["dwi2t1w"]), verbose=verb)
+
+        col["dwi2mni"] = op.join(regdir, dwibn + "_mni_xfm.mat")
+        execute(fsl.convert_xfm(concat=col["t1w2mni"], inp=col["dwi2t1w"],
+                                omat=col["dwi2mni"]), verbose=verb)
+
+        col["mni2dwi"] = op.join(regdir, dwibn + "_mni_inv_xfm.mat")
+        execute(fsl.convert_xfm(inverse=col["dwi2mni"], omat=col["mni2dwi"]),
+                verbose=verb)
+
+        # Only use the below before tracing through parcellations
+        # col["mni"] = "/usr/local/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz"
+        # col["mni_in_dwi"] = op.join(regdir, "MNI152_T1_2mm_brain_sub.nii.gz")
+        # execute(fsl.flirt(col["mni"], applyxfm=True, out=col["mni_in_dwi"],
+        #                   init=col["mni2dwi"], ref=col["eddy_dwi"]),
+        #         verbose=verb)
         complete_collection += [col]
 
 
