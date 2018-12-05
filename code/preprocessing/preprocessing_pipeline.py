@@ -240,7 +240,7 @@ def main():
         col["eddy_dwi"] = op.join(eddydir, dwibn + "_eddy")
         execute(fsl.eddy(col["dwi_brain"], col["dwi_mask"], col["acqparams"],
                          col["index"], col["bvec"], col["bval"],
-                         col["eddy_dwi"], exe="eddy"), verbose=verb)
+                         col["eddy_dwi"], exe="eddy_openmp"), verbose=verb)
 
         # Step 5: Registration to template
         regdir = op.join(outdir, "reg", subses)
