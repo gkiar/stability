@@ -56,6 +56,8 @@ def makeParser():
                         help="Flag toggling verbose output statements.")
     parser.add_argument("--boutiques", action="store_true",
                         help="Flag toggling descriptor creation.")
+    parser.add_argument("--gpu", action="store_true",
+                        help="Toggles using GPU accelerated eddy.")
     return parser
 
 
@@ -238,9 +240,13 @@ def main():
 
         # Run eddy
         col["eddy_dwi"] = op.join(eddydir, dwibn + "_eddy")
+        if results.gpu:
+            eddy_exe = "eddy_cuda8.0"
+        else:
+            eddy_exe = "eddy_openmp"
         execute(fsl.eddy(col["dwi_brain"], col["dwi_mask"], col["acqparams"],
                          col["index"], col["bvec"], col["bval"],
-                         col["eddy_dwi"], exe="eddy_openmp"), verbose=verb)
+                         col["eddy_dwi"], exe=eddy_exe), verbose=verb)
 
         # Step 5: Registration to template
         regdir = op.join(outdir, "reg", subses)

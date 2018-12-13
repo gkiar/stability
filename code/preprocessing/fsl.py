@@ -39,7 +39,7 @@ def eddy(dwi, mask, acq, ind, bvec, bval, out, exe="eddy"):
             "--out={6}".format(dwi, mask, acq, ind, bvec, bval, out))
 
 
-def flirt(inp, ref="/usr/local/fsl/data/standard/MNI152_T1_2mm_brain",
+def flirt(inp, ref="/usr/share/fsl/data/standard/MNI152_T1_2mm_brain",
           bins=256, cost="corratio", searchrx="-90 90", searchry="-90 90",
           searchrz="-90 90", dof=12, applyxfm=False, paddingsize=0.0,
           interp="trilinear", out=None, omat=None, init=None):
