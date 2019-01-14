@@ -99,7 +99,8 @@ def main():
     # Step 0, 1: Begin interrogation of BIDS dataset
 
     # Due to current super-linear slowdown in BIDS Layout, exclude all but
-    # participant of interest.
+    # participant of interest. Explored in the following Github issue:
+    #   https://github.com/bids-standard/pybids/issues/285
     if partis is not None:
         pattrn = 'sub-(?!{0})(.*)$'.format("|".join(partis))
     else:
@@ -166,11 +167,12 @@ def main():
         subses = op.join('sub-{0}'.format(col['subject']),
                          'ses-{0}'.format(col['session']))
 
-        # Step 1: Perform topup correction
-        topupdir = op.join(outdir, "topup", subses)
+        # Step 1: Extract B0 volumes
+        topupdir = op.join(outdir, subses, "dwi")
         execute("mkdir -p {0}".format(topupdir))
 
-        # Make even number of spatial voxels (req'd for eddy for some reason)
+        # Make even number of spatial voxels? (req'd for eddy for some reason)
+        # TODO : above
 
         # Get B0 locations
         with open(col["bval"]) as fhandle:
@@ -203,8 +205,8 @@ def main():
             line = "{0} {1}".format(acqs[pedir], trout)
             fhandle.write("\n".join([line] * len(b0_loc)))
 
-        # Run topup
-        # TODO: remove; topup only applies with multiple PEs
+        # Step 1.5: Run Top-up on Diffusion data
+        # TODO: remove; topup only applies with multiple PEs (rare in open data)
         # col["topup"] = op.join(topupdir, dwibn + "_topup")
         # col["hifi_b0"] = op.join(topupdir, dwibn + "_hifi_b0")
         # execute(fsl.topup(col["b0s"], col["acqparams"],
@@ -214,7 +216,7 @@ def main():
         #         verbose=verb)
 
         # Step 2: Brain extraction
-        betdir = op.join(outdir, "bet", subses)
+        betdir = op.join(outdir, subses, "dwi")
         execute('mkdir -p {0}'.format(betdir))
 
         col["dwi_brain"] = op.join(betdir, dwibn + "_brain.nii.gz")
@@ -222,19 +224,19 @@ def main():
         execute(fsl.bet(col["dwi"], col["dwi_brain"], "-F", "-m"), verbose=verb)
 
         # Step 3: Produce prelimary DTIfit QC figures
-        dtifitdir = op.join(outdir, "dtifit", subses)
+        dtifitdir = op.join(outdir, subses, "dwi")
         execute("mkdir -p {0}".format(dtifitdir))
 
-        col["dwi_qc_pre"] = op.join(dtifitdir, dwibn + "_pre")
+        col["dwi_qc_pre"] = op.join(dtifitdir, dwibn + "_dtifit_pre")
         execute(fsl.dtifit(col["dwi_brain"], col["dwi_qc_pre"], col["dwi_mask"],
                            col["bvec"], col["bval"]), verbose=verb)
 
         # Step 4: Perform eddy correction
-        eddydir = op.join(outdir, "eddy", subses)
+        eddydir = op.join(outdir, subses, "dwi")
         execute("mkdir -p {0}".format(eddydir))
 
         # Create index
-        col["index"] = op.join(eddydir, dwibn + "_index.txt")
+        col["index"] = op.join(eddydir, dwibn + "_eddy_index.txt")
         with open(col["index"], 'w') as fhandle:
             fhandle.write(" ".join(["1"] * len(bvals)))
 
@@ -249,21 +251,23 @@ def main():
                          col["eddy_dwi"], exe=eddy_exe), verbose=verb)
 
         # Step 5: Registration to template
-        regdir = op.join(outdir, "reg", subses)
-        execute("mkdir -p {0}".format(regdir))
+        regdir_a = op.join(outdir, subses, "anat")
+        regdir_d = op.join(outdir, subses, "dwi")
+        execute("mkdir -p {0}".format(regdir_a))
+        execute("mkdir -p {0}".format(regdir_d))
 
-        col["t1w2mni"] = op.join(regdir, anatbn + "_mni_xfm.mat")
+        col["t1w2mni"] = op.join(regdir_a, anatbn + "_mni_xfm.mat")
         execute(fsl.flirt(col["anat"], omat=col["t1w2mni"]), verbose=verb)
 
-        col["dwi2t1w"] = op.join(regdir, dwibn + "_t1w_xfm.mat")
+        col["dwi2t1w"] = op.join(regdir_d, dwibn + "_t1w_xfm.mat")
         execute(fsl.flirt(col["eddy_dwi"], ref=col["anat"],
                           omat=col["dwi2t1w"]), verbose=verb)
 
-        col["dwi2mni"] = op.join(regdir, dwibn + "_mni_xfm.mat")
+        col["dwi2mni"] = op.join(regdir_d, dwibn + "_mni_xfm.mat")
         execute(fsl.convert_xfm(concat=col["t1w2mni"], inp=col["dwi2t1w"],
                                 omat=col["dwi2mni"]), verbose=verb)
 
-        col["mni2dwi"] = op.join(regdir, dwibn + "_mni_inv_xfm.mat")
+        col["mni2dwi"] = op.join(regdir_d, dwibn + "_mni_inv_xfm.mat")
         execute(fsl.convert_xfm(inverse=col["dwi2mni"], omat=col["mni2dwi"]),
                 verbose=verb)
 
