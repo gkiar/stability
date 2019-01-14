@@ -177,7 +177,7 @@ def main():
         # Get B0 locations
         with open(col["bval"]) as fhandle:
             bvals = fhandle.read().split(" ")
-            bvals = [int(b) for b in bvals if b != '']
+            bvals = [int(b) for b in bvals if b != '' and b != '\n']
             b0_loc = [i for i, b in enumerate(bvals) if b == np.min(bvals)]
 
         # Get B0 volumes
