@@ -1,11 +1,13 @@
 {
+    "author": "Oxford Centre for Functional MRI of the Brain (FMRIB)",
     "command-line": "python3 /opt/preprocessing_pipeline.py [BIDS_DIR] [OUTPUT_DIR] [ANALYSIS_LEVEL] [PARTICIPANT_LABEL] [SESSION_LABEL] [VERBOSE] [BOUTIQUES]",
     "container-image": {
         "image": "gkiar/fsl_5.0.11_dwi_preprocessing:latest",
-        "type": "singularity",
-        "index": "docker://"
+        "index": "docker.io",
+        "type": "docker"
     },
-    "description": "tool description",
+    "description": "Preprocessing pipeline for diffusion MRI using the FSL suite.",
+    "doi": "10.5281/zenodo.2542768",
     "inputs": [
         {
             "description": "Directory to a BIDS-organized dataset.",
@@ -38,9 +40,9 @@
             "command-line-flag": "--participant_label",
             "description": "Label of the participant(s) to process, omitting the 'sub-' portion of the directory name. Supplying none means the entire dataset will be processed.",
             "id": "participant_label",
+            "list": true,
             "name": "participant_label",
             "optional": true,
-            "list": true,
             "type": "String",
             "value-key": "[PARTICIPANT_LABEL]"
         },
@@ -72,22 +74,27 @@
             "value-key": "[BOUTIQUES]"
         }
     ],
-    "name": "tool name",
+    "name": "FSL Diffusion Preprocessing",
     "output-files": [
         {
-          "description": "Directory to store the preprocessed derivatives.",
-          "id": "output_dir_path",
-          "name": "Output directory",
-          "optional": false,
-          "path-template": "[OUTPUT_DIR]"
+            "description": "Directory to store the preprocessed derivatives.",
+            "id": "output_dir_path",
+            "name": "Output directory",
+            "optional": false,
+            "path-template": "[OUTPUT_DIR]"
         }
     ],
     "schema-version": "0.5",
     "suggested-resources": {
         "cpu-cores": 1,
-        "ram": 1,
-        "walltime-estimate": 60
+        "ram": 8,
+        "walltime-estimate": 10800
     },
-    "tags": {},
-    "tool-version": "v0.1.0"
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "dmri"
+        ]
+    },
+    "tool-version": "5.0.9"
 }
