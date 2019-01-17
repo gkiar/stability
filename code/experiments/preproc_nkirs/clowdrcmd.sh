@@ -6,4 +6,4 @@ clowdr local descriptor.json \
              -v /project/6008063/gkiar/:/project/6008063/gkiar/ \
              -s ${PWD}/fsl_5.0.11_dwi_preprocessing-latest.simg \
              -bV \
-             -c slurm -a time:16:00:00,mem:8096,account:rpp-aevans-ab
+             -c slurm -a time:6:00:00,mem:8096,account:rpp-aevans-ab
