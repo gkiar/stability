@@ -60,6 +60,10 @@ def makeParser():
                         help="Flag toggling descriptor creation.")
     parser.add_argument("--gpu", action="store_true",
                         help="Toggles using GPU accelerated eddy.")
+    parser.add_argument("--fsldir", action="store",
+                        default="/usr/share/fsl/",
+                        help="Path to local installation of FSL. Defaults to "
+                             "/usr/share/fsl/.")
     return parser
 
 
@@ -87,6 +91,11 @@ def main():
         return 0
 
     verb = results.verbose
+    fsldir = results.fsldir
+    mni152 = op.join(fsldir, "data", "standard",
+                     "MNI152_T1_2mm_brain.nii.gz")
+    mni152bn = op.basename(mni152).split(".")[0]
+
     outdir = results.output_dir
     partis = results.participant_label
 
@@ -264,25 +273,25 @@ def main():
 
         # Step 5: Registration to template
         # ... Compute transforms
-        col["t1w2mni"] = op.join(derivdir_a, anatbn + "_mni_xfm.mat")
-        execute(fsl.flirt(col["anat_brain"], omat=col["t1w2mni"]),
+        col["t1w2mni"] = op.join(derivdir_a, anatbn + "_to_mni_xfm.mat")
+        execute(fsl.flirt(col["anat_brain"], omat=col["t1w2mni"], ref=mni152),
                 verbose=verb,
                 skipif=op.isfile(col["t1w2mni"]))
 
-        col["dwi2t1w"] = op.join(derivdir_d, dwibn + "_t1w_xfm.mat")
+        col["dwi2t1w"] = op.join(derivdir_d, dwibn + "_to_t1w_xfm.mat")
         execute(fsl.flirt(col["eddy_dwi"], ref=col["anat"],
                           omat=col["dwi2t1w"]),
                 verbose=verb,
                 skipif=op.isfile(col["dwi2t1w"]))
 
-        col["dwi2mni"] = op.join(derivdir_d, dwibn + "_mni_xfm.mat")
+        col["dwi2mni"] = op.join(derivdir_d, dwibn + "_to_mni_xfm.mat")
         execute(fsl.convert_xfm(concat=col["t1w2mni"], inp=col["dwi2t1w"],
                                 omat=col["dwi2mni"]),
                 verbose=verb,
                 skipif=op.isfile(col["dwi2mni"]))
 
         # ... Invert transforms towards diffusion space
-        col["mni2dwi"] = op.join(derivdir_d, dwibn + "_mni_inv_xfm.mat")
+        col["mni2dwi"] = op.join(derivdir_d, dwibn + "_from_mni_xfm.mat")
         execute(fsl.convert_xfm(inverse=col["dwi2mni"], omat=col["mni2dwi"]),
                 verbose=verb,
                 skipif=op.isfile(col["mni2dwi"]))
@@ -300,9 +309,7 @@ def main():
                 verbose=verb,
                 skipif=op.isfile(col["anat_in_dwi"]))
 
-        # TODO: revert to /usr/local on Mac or add arg for fsldir
-        col["mni"] = "/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz"
-        col["mni_in_dwi"] = op.join(derivdir_d, "MNI152_T1_2mm_brain_dwi.nii.gz")
+        col["mni_in_dwi"] = op.join(derivdir_d, mni152bn + "_dwi.nii.gz")
         execute(fsl.flirt(col["mni"], applyxfm=True, out=col["mni_in_dwi"],
                           init=col["mni2dwi"], ref=col["eddy_dwi"]),
                 verbose=verb,
