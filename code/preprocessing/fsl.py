@@ -38,16 +38,19 @@ def eddy(dwi, mask, acq, ind, bvec, bval, out, exe="eddy"):
             "--repol "
             "--out={6}".format(dwi, mask, acq, ind, bvec, bval, out))
 
+def fast(image, output_base, classes=3, imtype=1):
+    return ("fast "
+            "-t {0} "
+            "-n {1} "
+            "-o {2} "
+            "-g "
+            "{3}"
+            "".format(imtype, classes, output_base, image))
 
 def flirt(inp, ref="/usr/share/fsl/data/standard/MNI152_T1_2mm_brain",
           bins=256, cost="corratio", searchrx="-90 90", searchry="-90 90",
           searchrz="-90 90", dof=12, applyxfm=False, paddingsize=0.0,
           interp="trilinear", out=None, omat=None, init=None):
-    # flirt(t1, omat=t12mnixfm)
-    # flirt(dwi, ref=t1, omat=dwi2t1xfm)
-    # convert_xfm(concat=t12mnixfm, inp=dwi2t1xfm, omat=totalxfm)
-    # convert_xfm(inverse=totalxfm, inverse=reversexfm)
-    # flirt(parcelation, applyxfm=True, init=reversexfm)
     if applyxfm:
         assert(init is not None)
         assert(out is not None)
