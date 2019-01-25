@@ -29,7 +29,7 @@ RUN curl -O https://fsl.fmrib.ox.ac.uk/fsldownloads/patches/eddy-patch-fsl-5.0.1
     chmod 755 ${FSLDIR}/bin/eddy_openmp 
 
 RUN pip3 install duecredit \
-                 pybids \
+                 pybids==0.7.0 \
                  nibabel \
                  numpy \
                  scipy \

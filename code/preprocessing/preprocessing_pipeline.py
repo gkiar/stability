@@ -134,10 +134,10 @@ def main():
     for subj in subjects:
         for sess in sessions:
             tf_dwi = dset.get(subject=subj, session=sess,
-                              modality="dwi", type="dwi",
+                              datatype="dwi", suffix="dwi",
                               return_type="file")
             tf_anat = dset.get(subject=subj, session=sess,
-                               modality="anat", type="T1w",
+                               datatype="anat", suffix="T1w",
                                return_type="file")
             if (all(any(ftype in fl for fl in tf_dwi) for ftype in ftypes) and
                     any(ftypes[0] in fl for fl in tf_anat)):
@@ -169,9 +169,16 @@ def main():
         subses = op.join('sub-{0}'.format(col['subject']),
                          'ses-{0}'.format(col['session']))
 
+        derivdir_d = op.join(outdir, subses, "dwi")
+        derivdir_a = op.join(outdir, subses, "anat")
+        execute("mkdir -p {0}".format(derivdir_d),
+                verbose=verb,
+                skipif=op.isdir(derivdir_d))
+        execute("mkdir -p {0}".format(derivdir_a),
+                verbose=verb,
+                skipif=op.isdir(derivdir_a))
+
         # Step 1: Extract B0 volumes
-        topupdir = op.join(outdir, subses, "dwi")
-        execute("mkdir -p {0}".format(topupdir))
 
         # Make even number of spatial voxels? (req'd for eddy for some reason)
         # TODO : above, if actually needed - docs inconsistent
@@ -186,18 +193,18 @@ def main():
         col["b0_scans"] = []
         for idx, b0 in enumerate(b0_loc):
             b0ind = "b0_{0}".format(idx)
-            col["b0_scans"] += [op.join(topupdir,
+            col["b0_scans"] += [op.join(derivdir_d,
                                         dwibn + "_" + b0ind + ".nii.gz")]
             execute(fsl.fslroi(col["dwi"], col["b0_scans"][-1], *[b0, 1]),
                     verbose=verb, skipif=op.isfile(col["b0_scans"][-1]))
 
         # Merge B0 volumes
-        col["b0s"] = op.join(topupdir, dwibn + "_b0s.nii.gz")
+        col["b0s"] = op.join(derivdir_d, dwibn + "_b0s.nii.gz")
         execute(fsl.fslmerge(col["b0s"], *col["b0_scans"]), verbose=verb,
                 skipif=op.isfile(col["b0s"]))
 
         # Create acquisition parameters file
-        col["acqparams"] = op.join(topupdir, dwibn + "_acq.txt")
+        col["acqparams"] = op.join(derivdir_d, dwibn + "_acq.txt")
         acqs = {"i": "1 0 0", "i-": "-1 0 0",
                 "j": "0 1 0", "j-": "0 -1 0",
                 "k": "0 0 1", "k-": "0 0 -1"}
@@ -210,8 +217,8 @@ def main():
 
         # Step 1.5: Run Top-up on Diffusion data
         # TODO: remove; topup only applies with multiple PEs (rare in open data)
-        # col["topup"] = op.join(topupdir, dwibn + "_topup")
-        # col["hifi_b0"] = op.join(topupdir, dwibn + "_hifi_b0")
+        # col["topup"] = op.join(derivdir_d, dwibn + "_topup")
+        # col["hifi_b0"] = op.join(derivdir_d, dwibn + "_hifi_b0")
         # execute(fsl.topup(col["b0s"], col["acqparams"],
         #                   col["topup"], col["hifi_b0"]),
         #         verbose=verb)
@@ -220,42 +227,32 @@ def main():
 
         # Step 2: Brain extraction
         # ... Diffusion:
-        betdir_d = op.join(outdir, subses, "dwi")
-        execute('mkdir -p {0}'.format(betdir_d))
-
-        col["dwi_brain"] = op.join(betdir_d, dwibn + "_brain.nii.gz")
-        col["dwi_mask"] = op.join(betdir_d, dwibn + "_brain_mask.nii.gz")
+        col["dwi_brain"] = op.join(derivdir_d, dwibn + "_brain.nii.gz")
+        col["dwi_mask"] = op.join(derivdir_d, dwibn + "_brain_mask.nii.gz")
         execute(fsl.bet(col["dwi"], col["dwi_brain"], "-F", "-m"), verbose=verb,
                 skipif=op.isfile(col["dwi_brain"]))
 
         # ... Structural:
-        betdir_a = op.join(outdir, subses, "anat")
-        execute('mkdir -p {0}'.format(betdir_a))
-
-        col["anat_brain"] =  op.join(betdir_a, anatbn + "_brain.nii.gz")
-        col["anat_mask"] = op.join(betdir_a, anatbn + "_brain.nii.gz")
+        col["anat_brain"] =  op.join(derivdir_a, anatbn + "_brain.nii.gz")
+        col["anat_mask"] = op.join(derivdir_a, anatbn + "_brain.nii.gz")
         execute(fsl.bet(col["anat"], col["anat_brain"], "-m"), verbose=verb,
                 skipif=op.isfile(col["anat_brain"]))
 
         # Step 3: Produce prelimary DTIfit QC figures
-        dtifitdir = op.join(outdir, subses, "dwi")
-        execute("mkdir -p {0}".format(dtifitdir))
-
-        col["dwi_qc_pre"] = op.join(dtifitdir, dwibn + "_dtifit_pre")
+        col["dwi_qc_pre"] = op.join(derivdir_d, dwibn + "_dtifit_pre")
         execute(fsl.dtifit(col["dwi_brain"], col["dwi_qc_pre"], col["dwi_mask"],
-                           col["bvec"], col["bval"]), verbose=verb)
+                           col["bvec"], col["bval"]),
+                verbose=verb,
+                skipif=op.isfile(col["dwi_qc_pre"] + "_FA.nii.gz"))
 
         # Step 4: Perform eddy correction
-        eddydir = op.join(outdir, subses, "dwi")
-        execute("mkdir -p {0}".format(eddydir))
-
         # ... Create index
-        col["index"] = op.join(eddydir, dwibn + "_eddy_index.txt")
+        col["index"] = op.join(derivdir_d, dwibn + "_eddy_index.txt")
         with open(col["index"], 'w') as fhandle:
             fhandle.write(" ".join(["1"] * len(bvals)))
 
         # ... Run eddy
-        col["eddy_dwi"] = op.join(eddydir, dwibn + "_eddy")
+        col["eddy_dwi"] = op.join(derivdir_d, dwibn + "_eddy")
         if results.gpu:
             eddy_exe = "eddy_cuda8.0"
         else:
@@ -266,62 +263,61 @@ def main():
                 skipif=op.isfile(col["eddy_dwi"] + ".nii.gz"))
 
         # Step 5: Registration to template
-        regdir_a = op.join(outdir, subses, "anat")
-        regdir_d = op.join(outdir, subses, "dwi")
-        execute("mkdir -p {0}".format(regdir_a))
-        execute("mkdir -p {0}".format(regdir_d))
-
         # ... Compute transforms
-        col["t1w2mni"] = op.join(regdir_a, anatbn + "_mni_xfm.mat")
+        col["t1w2mni"] = op.join(derivdir_a, anatbn + "_mni_xfm.mat")
         execute(fsl.flirt(col["anat_brain"], omat=col["t1w2mni"]),
                 verbose=verb,
                 skipif=op.isfile(col["t1w2mni"]))
 
-        col["dwi2t1w"] = op.join(regdir_d, dwibn + "_t1w_xfm.mat")
+        col["dwi2t1w"] = op.join(derivdir_d, dwibn + "_t1w_xfm.mat")
         execute(fsl.flirt(col["eddy_dwi"], ref=col["anat"],
                           omat=col["dwi2t1w"]),
                 verbose=verb,
                 skipif=op.isfile(col["dwi2t1w"]))
 
-        col["dwi2mni"] = op.join(regdir_d, dwibn + "_mni_xfm.mat")
+        col["dwi2mni"] = op.join(derivdir_d, dwibn + "_mni_xfm.mat")
         execute(fsl.convert_xfm(concat=col["t1w2mni"], inp=col["dwi2t1w"],
                                 omat=col["dwi2mni"]),
                 verbose=verb,
                 skipif=op.isfile(col["dwi2mni"]))
 
         # ... Invert transforms towards diffusion space
-        col["mni2dwi"] = op.join(regdir_d, dwibn + "_mni_inv_xfm.mat")
+        col["mni2dwi"] = op.join(derivdir_d, dwibn + "_mni_inv_xfm.mat")
         execute(fsl.convert_xfm(inverse=col["dwi2mni"], omat=col["mni2dwi"]),
                 verbose=verb,
                 skipif=op.isfile(col["mni2dwi"]))
 
-        col["t1w2dwi"] = op.join(regdir_a, anatbn + "_dwi_xfm.mat")
+        col["t1w2dwi"] = op.join(derivdir_a, anatbn + "_dwi_xfm.mat")
         execute(fsl.convert_xfm(inverse=col["dwi2t1w"], omat=col["t1w2dwi"]),
                 verbose=verb,
                 skipif=op.isfile(col["t1w2dwi"]))
 
         # Step 6: Apply registrations to anatomical and template images
-        col["anat_in_dwi"] = op.join(regdir_a, anat_bn + "_brain_dwi.nii.gz")
+        col["anat_in_dwi"] = op.join(derivdir_a, anatbn + "_brain_dwi.nii.gz")
         execute(fsl.flirt(col["anat_brain"], applyxfm=True,
                           out=col["anat_in_dwi"], init=col["t1w2dwi"],
                           ref=col["eddy_dwi"]),
                 verbose=verb,
                 skipif=op.isfile(col["anat_in_dwi"]))
 
+        # TODO: revert to /usr/local on Mac or add arg for fsldir
         col["mni"] = "/usr/share/fsl/data/standard/MNI152_T1_2mm_brain.nii.gz"
-        col["mni_in_dwi"] = op.join(regdir_d, "MNI152_T1_2mm_brain_dwi.nii.gz")
+        col["mni_in_dwi"] = op.join(derivdir_d, "MNI152_T1_2mm_brain_dwi.nii.gz")
         execute(fsl.flirt(col["mni"], applyxfm=True, out=col["mni_in_dwi"],
                           init=col["mni2dwi"], ref=col["eddy_dwi"]),
                 verbose=verb,
                 skipif=op.isfile(col["mni_in_dwi"]))
 
         # Step 7: Perform tissue segmentation on anatomical images in DWI space
-        col["tissue_masks"] = op.join(regdir_d, anat_bn + "_fast")
+        col["tissue_masks"] = op.join(derivdir_d, anatbn + "_fast")
         execute(fsl.fast(col["anat_in_dwi"], col["tissue_masks"],
                 classes=3, imtype=1),
                 verbose=verb,
                 skipif=op.isfile(col["tissue_masks"] + "_seg_2.nii.gz"))
 
+        if verb:
+            print("Finished processing sub-{0}".format(subj) +
+                  " / ses-{0} !".format(sess), flush=True)
         complete_collection += [col]
 
 

@@ -47,6 +47,7 @@ def fast(image, output_base, classes=3, imtype=1):
             "{3}"
             "".format(imtype, classes, output_base, image))
 
+# TODO: revert to /usr/local on Mac unless fsldir is added
 def flirt(inp, ref="/usr/share/fsl/data/standard/MNI152_T1_2mm_brain",
           bins=256, cost="corratio", searchrx="-90 90", searchry="-90 90",
           searchrz="-90 90", dof=12, applyxfm=False, paddingsize=0.0,
