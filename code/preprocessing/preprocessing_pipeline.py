@@ -279,7 +279,7 @@ def main():
                 skipif=op.isfile(col["t1w2mni"]))
 
         col["dwi2t1w"] = op.join(derivdir_d, dwibn + "_to_t1w_xfm.mat")
-        execute(fsl.flirt(col["eddy_dwi"], ref=col["anat"],
+        execute(fsl.flirt(col["eddy_dwi"], ref=col["anat_brain"],
                           omat=col["dwi2t1w"]),
                 verbose=verb,
                 skipif=op.isfile(col["dwi2t1w"]))
@@ -310,7 +310,7 @@ def main():
                 skipif=op.isfile(col["anat_in_dwi"]))
 
         col["mni_in_dwi"] = op.join(derivdir_d, mni152bn + "_dwi.nii.gz")
-        execute(fsl.flirt(col["mni"], applyxfm=True, out=col["mni_in_dwi"],
+        execute(fsl.flirt(mni152, applyxfm=True, out=col["mni_in_dwi"],
                           init=col["mni2dwi"], ref=col["eddy_dwi"]),
                 verbose=verb,
                 skipif=op.isfile(col["mni_in_dwi"]))
