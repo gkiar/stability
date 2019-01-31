@@ -7,7 +7,7 @@
         "type": "docker"
     },
     "description": "Preprocessing pipeline for diffusion MRI data using the FSL software suite.",
-    "doi": "10.5281/zenodo.2542768",
+    "doi": "10.5281/zenodo.2554443",
     "inputs": [
         {
             "description": "Directory to a BIDS-organized dataset.",
