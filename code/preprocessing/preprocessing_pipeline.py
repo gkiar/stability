@@ -64,6 +64,9 @@ def makeParser():
                         default="/usr/share/fsl/",
                         help="Path to local installation of FSL. Defaults to "
                              "/usr/share/fsl/.")
+    parser.add_argument("--parcellation", "-l", action="store", nargs="+",
+                        help="Parcellation/Label volumes which will be "
+                             "transformed into the subject/session DWI space.")
     return parser
 
 
@@ -98,6 +101,7 @@ def main():
 
     outdir = results.output_dir
     partis = results.participant_label
+    labels = results.parcellation
 
     if verb:
         print("BIDS Dir: {0}".format(results.bids_dir), flush=True)
@@ -321,6 +325,17 @@ def main():
                 classes=3, imtype=1),
                 verbose=verb,
                 skipif=op.isfile(col["tissue_masks"] + "_seg_2.nii.gz"))
+
+        # Step 8: Transform parcellations into DWI space
+        col["labels_in_dwi"] = []
+        for label in labels:
+            lbn = op.basename(label).split('.')[0]
+            col["labels_in_dwi"] += [op.join(derivdir_d, lbn + "_dwi.nii.gz")]
+            execute(fsl.flirt(label, applyxfm=True,
+                              out=col["labels_in_dwi"][-1],
+                              init=col["mni2dwi"], ref=col["eddy_dwi"]),
+                    verbose=verb,
+                    skipif=op.isfile(col["labels_in_dwi"][-1]))
 
         if verb:
             print("Finished processing sub-{0}".format(subj) +
