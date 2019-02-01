@@ -65,6 +65,7 @@ def makeParser():
                         help="Path to local installation of FSL. Defaults to "
                              "/usr/share/fsl/.")
     parser.add_argument("--parcellation", "-l", action="store", nargs="+",
+                        default=[],
                         help="Parcellation/Label volumes which will be "
                              "transformed into the subject/session DWI space.")
     return parser
@@ -313,7 +314,9 @@ def main():
                 verbose=verb,
                 skipif=op.isfile(col["anat_in_dwi"]))
 
-        col["mni_in_dwi"] = op.join(derivdir_d, mni152bn + "_dwi.nii.gz")
+        col["mni_in_dwi"] = op.join(derivdir_d,
+                                    ("atlas_" + dwibn + "_" +
+                                     mni152bn + "_dwi.nii.gz"))
         execute(fsl.flirt(mni152, applyxfm=True, out=col["mni_in_dwi"],
                           init=col["mni2dwi"], ref=col["eddy_dwi"]),
                 verbose=verb,
@@ -330,10 +333,13 @@ def main():
         col["labels_in_dwi"] = []
         for label in labels:
             lbn = op.basename(label).split('.')[0]
-            col["labels_in_dwi"] += [op.join(derivdir_d, lbn + "_dwi.nii.gz")]
+            col["labels_in_dwi"] += [op.join(derivdir_d,
+                                             ("labels_" + dwibn + "_" +
+                                              lbn + ".nii.gz"))]
             execute(fsl.flirt(label, applyxfm=True,
                               out=col["labels_in_dwi"][-1],
-                              init=col["mni2dwi"], ref=col["eddy_dwi"]),
+                              init=col["mni2dwi"], ref=col["eddy_dwi"],
+                              interp="nearestneighbour"),
                     verbose=verb,
                     skipif=op.isfile(col["labels_in_dwi"][-1]))
 
