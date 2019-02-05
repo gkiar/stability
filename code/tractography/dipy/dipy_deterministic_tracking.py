@@ -12,12 +12,14 @@ from dipy.io import read_bvals_bvecs
 from dipy.data import default_sphere
 from dipy.tracking import utils
 from dipy.viz import have_fury
+from nibabel.streamlines import ArraySequence
 
 import nibabel as nib
 import numpy as np
 
 
-def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers):
+def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers,
+                              prune_length=3):
     # Pipeline trascribed from:
     #   http://nipy.org/dipy/examples_built/introduction_to_basic_tracking.html
     # Load Images
@@ -52,6 +54,11 @@ def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers):
     streamlines_generator = LocalTracking(csa_peaks, classifier, seeds,
                                           affine=np.eye(4), step_size=0.5)
     streamlines = Streamlines(streamlines_generator)
+
+    # Prune streamlines
+    streamlines = ArraySequence([strline
+                                 for strline in streamlines
+                                 if len(strline) > prune_length])
 
     # Save streamlines
     if not fibers.endswith(".trk"):
