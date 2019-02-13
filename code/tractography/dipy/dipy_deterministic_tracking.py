@@ -21,7 +21,7 @@ import os.path as op
 
 
 def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers,
-                              prune_length=15):
+                              prune_length=3, plot=False):
     # Pipeline transcribed from:
     #   http://nipy.org/dipy/examples_built/introduction_to_basic_tracking.html
     # Load Images
@@ -67,7 +67,7 @@ def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers,
              shape=wm_data.shape, vox_size=wm_loaded.header.get_zooms())
 
     # Visualize fibers
-    if have_fury:
+    if plot and have_fury:
         from dipy.viz import window, actor, colormap as cmap
 
         color = cmap.line_colors(streamlines)
@@ -81,8 +81,6 @@ def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers,
         # Save still image.
         window.record(r, n_frames=1, out_path=fibers + ".png",
                       size=(800, 800))
-
-    return streamlines, dwi_loaded.affine
 
 
 def streamlines2graph(streamlines, affine, parcellation, output_file):
@@ -119,6 +117,8 @@ def main():
     parser.add_argument("output_directory")
     parser.add_argument("--labels", "-l", nargs="+")
     parser.add_argument("--verbose", "-v", action="store_true")
+    parser.add_argument("--prune", "-p", action="store", type=int)
+    parser.add_argument("--streamline_plot", "-s", action="store_true")
 
     results = parser.parse_args()
 
@@ -134,12 +134,12 @@ def main():
     bn = op.basename(image).split('.')[0]
     fibers = op.join(output, bn + "_fibers")
     if not op.isfile(fibers + ".trk"):
-        streamlines, affine, = dwi_deterministic_tracing(image, bvecs, bvals,
-                                                         wm, seeds, fibers)
-    else:
-        streamlines = load_trk(fibers + ".trk")
-        affine = streamlines[1]['voxel_to_rasmm']
-        streamlines = streamlines[0]
+        dwi_deterministic_tracing(image, bvecs, bvals,
+                                  wm, seeds, fibers)
+
+    streamlines = load_trk(fibers + ".trk")
+    affine = streamlines[1]['voxel_to_rasmm']
+    streamlines = streamlines[0]
 
     if labels:
         graphs = []
