@@ -1,0 +1,11 @@
+{
+    "image_file": "/home/users/gkiar/data/RocklandSample/derivatives/sub-A00019903/ses-DS2/dwi/sub-A00019903_ses-DS2_dwi_eddy.nii.gz",
+    "mask_file": "/home/users/gkiar/data/RocklandSample/derivatives/sub-A00019903/ses-DS2/dwi/sub-A00019903_ses-DS2_T1w_fast_seg_2.nii.gz",
+    "output_directory": "/home/users/gkiar/data/RocklandSample/derivatives/sub-A00019903/ses-DS2_1vox/",
+    "scale": true,
+    "intensity": 0.01,
+    "erode": 2,
+    "force": false,
+    "mode": "single",
+    "verbose": true
+}
