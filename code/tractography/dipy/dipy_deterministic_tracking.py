@@ -21,7 +21,7 @@ import os.path as op
 
 
 def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers,
-                              prune_length=3):
+                              prune_length=15):
     # Pipeline transcribed from:
     #   http://nipy.org/dipy/examples_built/introduction_to_basic_tracking.html
     # Load Images
