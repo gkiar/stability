@@ -3,8 +3,8 @@
     "command-line": "python3 /opt/oneVoxel.py [IMAGE_FILE] [OUTPUT_DIRECTORY] [MASK_FILE] [NO_SCALE] [INTENSITY] [ERODE] [LOCATION] [FORCE] [MODE] [CLEAN] [APPLY_NOISE] [VERBOSE] [BOUTIQUES]",
     "container-image": {
         "image": "gkiar/onevoxel:v0.2.0",
-        "index": "index.docker.io",
-        "type": "docker"
+        "index": "docker://",
+        "type": "singularity"
     },
     "description": "Adds 1-voxel noise to a Nifti image at either a provided or random location within a mask.",
     "groups": [
