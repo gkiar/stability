@@ -117,12 +117,18 @@ def main():
     parser.add_argument("output_directory")
     parser.add_argument("--labels", "-l", nargs="+")
     parser.add_argument("--verbose", "-v", action="store_true")
-    parser.add_argument("--prune", "-p", action="store", type=int)
+    parser.add_argument("--prune", "-p", action="store", type=int, default=3)
     parser.add_argument("--streamline_plot", "-s", action="store_true")
 
     results = parser.parse_args()
 
     image = results.diffusion_image
+    if image.endswith(".json"):
+        #generate image data
+        clean = True
+    else:
+        clean = False
+
     bvecs = results.bvecs
     bvals = results.bvals
     wm = results.whitematter_mask
