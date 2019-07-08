@@ -14,7 +14,7 @@ ipython==7.1.1
 ipython-genutils==0.2.0
 ipywidgets==7.4.2
 jedi==0.13.1
-Jinja2==2.10
+Jinja2>=2.10.1
 jmespath==0.9.3
 jsonschema==2.6.0
 jupyter==1.0.0
@@ -29,7 +29,7 @@ nbconvert==5.4.0
 nbformat==4.4.0
 nibabel==2.3.1
 nilearn==0.4.2
-notebook==5.7.0
+notebook>=5.7.8
 numpy==1.15.3
 pandocfilters==1.4.2
 parso==0.3.1
@@ -42,7 +42,7 @@ pyasn1==0.4.4
 Pygments==2.2.0
 pyparsing==2.3.0
 python-dateutil==2.7.5
-PyYAML==3.13
+PyYAML>=4.2b1
 pyzmq==17.1.2
 qtconsole==4.4.2
 rsa==3.4.2
@@ -55,7 +55,7 @@ terminado==0.8.1
 testpath==0.4.2
 tornado==5.1.1
 traitlets==4.3.2
-urllib3==1.24
+urllib3>=1.24.2
 wcwidth==0.1.7
 webencodings==0.5.1
 widgetsnbextension==3.4.2
