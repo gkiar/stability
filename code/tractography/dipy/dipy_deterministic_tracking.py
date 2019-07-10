@@ -13,11 +13,31 @@ from dipy.data import default_sphere
 from dipy.tracking import utils
 from dipy.viz import have_fury
 from nibabel.streamlines import ArraySequence
+from onevox.cli import driver as ov
 
 import matplotlib.pyplot as plt
 import nibabel as nib
 import numpy as np
 import os.path as op
+import json
+
+
+def make_descriptor(parser, arguments=None):
+    import boutiques.creator as bc
+
+    basename = "dipy_deterministic_tracking.py"
+    desc = bc.CreateDescriptor(parser, execname=op.basename(basename),
+                               tags={"domain": ["neuroinformatics",
+                                                "image processing",
+                                                "mri", "noise"]})
+    desc.save(basename + ".json")
+
+    if arguments is not None:
+        invo = desc.createInvocation(arguments)
+        invo.pop("boutiques")
+
+        with open(basename + "_inputs.json", "w") as fhandle:
+            fhandle.write(json.dumps(invo, indent=4))
 
 
 def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers,
@@ -71,8 +91,7 @@ def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers,
         from dipy.viz import window, actor, colormap as cmap
 
         color = cmap.line_colors(streamlines)
-        streamlines_actor = actor.line(streamlines,
-                                       cmap.line_colors(streamlines))
+        streamlines_actor = actor.line(streamlines, color)
 
         # Create the 3D display.
         r = window.Renderer()
@@ -107,27 +126,60 @@ def streamlines2graph(streamlines, affine, parcellation, output_file):
     plt.savefig(output_file + ".png")
 
 
-def main():
-    parser = ArgumentParser(__file__)
-    parser.add_argument("diffusion_image")
-    parser.add_argument("bvecs")
-    parser.add_argument("bvals")
-    parser.add_argument("whitematter_mask")
-    parser.add_argument("seed_mask")
-    parser.add_argument("output_directory")
-    parser.add_argument("--labels", "-l", nargs="+")
-    parser.add_argument("--verbose", "-v", action="store_true")
-    parser.add_argument("--prune", "-p", action="store", type=int, default=3)
-    parser.add_argument("--streamline_plot", "-s", action="store_true")
+def main(args=None):
+    parser = ArgumentParser("dipy_deterministic_tracking.py",
+                            description="Generates streamlines and optionally "
+                                        "a connectome from a set of diffusion "
+                                        "volumes and parameter files.")
+    parser.add_argument("diffusion_image",
+                        help="Image containing a stack of DWI volumes, ideally"
+                             " preprocessed, to be used for tracing. If this "
+                             "is a nifti image, the image is used directly. If"
+                             " it is a JSON file, it is expected to be an "
+                             "output from the 'oneVoxel' noise-simulation tool"
+                             " and the image will be regenerated using the "
+                             "parameters contained in the JSON file.")
+    parser.add_argument("bvecs",
+                        help="")
+    parser.add_argument("bvals",
+                        help="")
+    parser.add_argument("whitematter_mask",
+                        help="")
+    parser.add_argument("seed_mask",
+                        help="")
+    parser.add_argument("output_directory",
+                        help="")
+    parser.add_argument("--labels", "-l", nargs="+",
+                        help="")
+    parser.add_argument("--verbose", "-v", action="store_true",
+                        help="")
+    parser.add_argument("--prune", "-p", action="store", type=int, default=3,
+                        help="")
+    parser.add_argument("--streamline_plot", "-s", action="store_true",
+                        help="")
+    parser.add_argument("--boutiques", action="store_true",
+                        help="Toggles creation of a Boutiques descriptor and "
+                             "invocation from the tool and inputs.")
 
-    results = parser.parse_args()
+    results = parser.parse_args() if args is None else parser.parse_args(args)
+
+    # Just create the descriptor and exit if we set this flag.
+    if results.boutiques:
+        make_descriptor(parser, results)
+        return 0
 
     image = results.diffusion_image
-    if image.endswith(".json"):
-        #generate image data
-        clean = True
-    else:
-        clean = False
+    noised = True if image.endswith(".json") else False
+    if noised:
+        noise_file = image
+        # Load noise parameters
+        with open(image, 'r') as fhandle:
+            noise_data = json.loads(fhandle.read())
+
+        # Apply noise to image
+        image = noise_data["base_image"]
+        ov(image, results.output_directory,
+           apply_noise=image, verbose=results.verbose)
 
     bvecs = results.bvecs
     bvals = results.bvals
@@ -153,6 +205,11 @@ def main():
             labelbn = op.basename(label).split('.')[0]
             graphs += [op.join(output, bn + "_graph-" + labelbn)]
             streamlines2graph(streamlines, affine, label, graphs[-1])
+
+    if noised:
+        # Delete noisy image
+        ov(image, results.output_directory, clean=True,
+           apply_noise=noise_file, verbose=results.verbose)
 
     if verbose:
         print("Streamlines: {0}".format(fibers))
