@@ -14,7 +14,7 @@
             "id": "diffusion_image",
             "name": "diffusion_image",
             "optional": false,
-            "type": "String",
+            "type": "File",
             "value-key": "[DIFFUSION_IMAGE]"
         },
         {
@@ -22,7 +22,7 @@
             "id": "bvecs",
             "name": "bvecs",
             "optional": false,
-            "type": "String",
+            "type": "File",
             "value-key": "[BVECS]"
         },
         {
@@ -30,7 +30,7 @@
             "id": "bvals",
             "name": "bvals",
             "optional": false,
-            "type": "String",
+            "type": "File",
             "value-key": "[BVALS]"
         },
         {
@@ -38,7 +38,7 @@
             "id": "whitematter_mask",
             "name": "whitematter_mask",
             "optional": false,
-            "type": "String",
+            "type": "File",
             "value-key": "[WHITEMATTER_MASK]"
         },
         {
@@ -46,7 +46,7 @@
             "id": "seed_mask",
             "name": "seed_mask",
             "optional": false,
-            "type": "String",
+            "type": "File",
             "value-key": "[SEED_MASK]"
         },
         {
@@ -64,7 +64,7 @@
             "list": true,
             "name": "labels",
             "optional": true,
-            "type": "String",
+            "type": "File",
             "value-key": "[LABELS]"
         },
         {
@@ -84,6 +84,8 @@
             "name": "prune",
             "optional": true,
             "type": "Number",
+            "integer": true,
+            "minimum": 0,
             "value-key": "[PRUNE]"
         },
         {
@@ -110,7 +112,7 @@
         {
             "id": "fibers",
             "name": "Fibers",
-            "optional": true,
+            "optional": false,
             "path-template": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_fibers.trk",
             "path-template-stripped-extensions": [
                 ".nii.gz",
