@@ -140,23 +140,39 @@ def main(args=None):
                              " and the image will be regenerated using the "
                              "parameters contained in the JSON file.")
     parser.add_argument("bvecs",
-                        help="")
+                        help="The b-vectors corresponding to the diffusion "
+                             "images. If the images have been preprocessed "
+                             "then the rotated b-vectors should be used.")
     parser.add_argument("bvals",
-                        help="")
+                        help="The b-values corresponding to the diffusion "
+                             "images. ")
     parser.add_argument("whitematter_mask",
-                        help="")
+                        help="A white matter mask generated from a structural "
+                             "image that has been transformed into the same "
+                             "space as the diffusion images.")
     parser.add_argument("seed_mask",
-                        help="")
+                        help="A seed mask, recommended as the white matter and"
+                             " gray matter boundary. This can be derived from "
+                             "the white matter mask by dilating the image and "
+                             "subtracting the original mask.")
     parser.add_argument("output_directory",
-                        help="")
+                        help="The directory in which the streamlines and "
+                             "optionally graphs and figures will be saved in.")
     parser.add_argument("--labels", "-l", nargs="+",
-                        help="")
+                        help="Optional nifti image containing co-registered "
+                             "region labels pertaining to a parcellation. This"
+                             " file will be used for generating a connectome "
+                             "from the streamlines.")
     parser.add_argument("--verbose", "-v", action="store_true",
-                        help="")
+                        help="Toggles verbose or quiet output printing.")
     parser.add_argument("--prune", "-p", action="store", type=int, default=3,
-                        help="")
+                        help="Dictates the minimum length of fibers to keep. "
+                             "If fibers are shorter than the value, exclusive,"
+                             "then they will be thrown out. Default value is "
+                             "3 nodes in the fiber.")
     parser.add_argument("--streamline_plot", "-s", action="store_true",
-                        help="")
+                        help="Toggles the plotting of streamlines. This "
+                             "requires VTK.")
     parser.add_argument("--boutiques", action="store_true",
                         help="Toggles creation of a Boutiques descriptor and "
                              "invocation from the tool and inputs.")
@@ -168,6 +184,7 @@ def main(args=None):
         make_descriptor(parser, results)
         return 0
 
+    verbose = results.verbose
     image = results.diffusion_image
     noised = True if image.endswith(".json") else False
     if noised:
@@ -177,31 +194,26 @@ def main(args=None):
             noise_data = json.loads(fhandle.read())
 
         # Apply noise to image
-        image = noise_data["base_image"]
-        ov(image, results.output_directory,
-           apply_noise=image, verbose=results.verbose)
+        in_image = noise_data["base_image"]
+        ov(in_image, results.output_directory,
+           apply_noise=noise_file, verbose=results.verbose)
 
-    bvecs = results.bvecs
-    bvals = results.bvals
-    wm = results.whitematter_mask
-    seeds = results.seed_mask
-    output = results.output_directory
-    labels = results.labels
-    verbose = results.verbose
+        image = noise_file.replace('.json', '.nii.gz')
 
     bn = op.basename(image).split('.')[0]
-    fibers = op.join(output, bn + "_fibers")
+    fibers = op.join(results.output_directory, bn + "_fibers")
     if not op.isfile(fibers + ".trk"):
-        dwi_deterministic_tracing(image, bvecs, bvals,
-                                  wm, seeds, fibers)
+        dwi_deterministic_tracing(image, results.bvecs, results.bvals,
+                                  results.wm, results.seeds, fibers,
+                                  plot=results.streamline_plot)
 
     streamlines = load_trk(fibers + ".trk")
     affine = streamlines[1]['voxel_to_rasmm']
     streamlines = streamlines[0]
 
-    if labels:
+    if results.labels:
         graphs = []
-        for label in labels:
+        for label in results.labels:
             labelbn = op.basename(label).split('.')[0]
             graphs += [op.join(output, bn + "_graph-" + labelbn)]
             streamlines2graph(streamlines, affine, label, graphs[-1])
@@ -209,7 +221,7 @@ def main(args=None):
     if noised:
         # Delete noisy image
         ov(image, results.output_directory, clean=True,
-           apply_noise=noise_file, verbose=results.verbose)
+           apply_noise=noise_file, verbose=verbose)
 
     if verbose:
         print("Streamlines: {0}".format(fibers))
