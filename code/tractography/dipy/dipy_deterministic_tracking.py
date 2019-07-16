@@ -215,7 +215,8 @@ def main(args=None):
         graphs = []
         for label in results.labels:
             labelbn = op.basename(label).split('.')[0]
-            graphs += [op.join(output, bn + "_graph-" + labelbn)]
+            graphs += [op.join(results.output_directory,
+                               bn + "_graph-" + labelbn)]
             streamlines2graph(streamlines, affine, label, graphs[-1])
 
     if noised:
