@@ -204,8 +204,9 @@ def main(args=None):
     fibers = op.join(results.output_directory, bn + "_fibers")
     if not op.isfile(fibers + ".trk"):
         dwi_deterministic_tracing(image, results.bvecs, results.bvals,
-                                  results.wm, results.seeds, fibers,
-                                  plot=results.streamline_plot)
+                                  results.whitematter_mask,
+                                  results.seed_mask,
+                                  fibers, plot=results.streamline_plot)
 
     streamlines = load_trk(fibers + ".trk")
     affine = streamlines[1]['voxel_to_rasmm']
