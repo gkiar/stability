@@ -1,12 +1,11 @@
 {
     "clean": true,
     "erode": 2,
-    "force": false,
     "image_file": "./sandbox/sub-A00008326_ses-DS2_dwi_eddy.nii.gz",
     "intensity": [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2],
     "mask_file": "./sandbox/sub-A00008326_ses-DS2_T1w_fast_seg_2.nii.gz",
     "mode": ["single", "independent"],
-    "scale": false,
     "output_directory": "./sandbox/",
+    "repeat": 3,
     "verbose": true
 }
