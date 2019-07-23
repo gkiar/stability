@@ -3,11 +3,10 @@
     "command-line": "/opt/dipy_deterministic_tracking.py [DIFFUSION_IMAGE] [BVECS] [BVALS] [WHITEMATTER_MASK] [SEED_MASK] [OUTPUT_DIRECTORY] [LABELS] [VERBOSE] [PRUNE] [STREAMLINE_PLOT] [BOUTIQUES]",
     "container-image": {
         "image": "gkiar/dipy_deterministic_tracking:v0.1.0",
-        "index": "index.docker.io",
-        "type": "docker"
+        "index": "docker://",
+        "type": "singularity"
     },
     "description": "Pipeline for generating streamlines and creating connectomes from preprocessed diffusion images using Dipy. This tool is the boilerplate deterministic tractography provided within Dipy.",
-    "doi": "10.5281/zenodo.3338609",
     "inputs": [
         {
             "description": "Image containing a stack of DWI volumes, ideally preprocessed, to be used for tracing. If this is a nifti image, the image is used directly. If it is a JSON file, it is expected to be an output from the 'oneVoxel' noise-simulation tool and the image will be regenerated using the parameters contained in the JSON file.",
