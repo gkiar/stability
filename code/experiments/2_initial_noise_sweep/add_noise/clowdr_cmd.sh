@@ -10,6 +10,6 @@ clowdr local \
        --cluster slurm \
        --clusterargs account:rpp-aevans-ab,time:2:00:00,mem:2048 \
        -g 30 \
-       -dV \
+       -V \
        -v /project/6008063/gkiar/:/project/6008063/gkiar/
 
