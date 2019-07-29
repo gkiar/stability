@@ -58,7 +58,7 @@ def main(args=None):
     json_files = listdir(results.json_dir)
     json_df = jsons2df(json_files)
     print('Noise Info footprint: {0}'.format(df_footprint_mb(json_df)))
-    json_df.to_hdf(oname, "noise_info")
+    json_df.to_hdf(oname, "metadata")
     del json_df
 
     # Grab and process the graph data
