@@ -66,7 +66,8 @@ def main(args=None):
     results = parser.parse_args() if args is None else parser.parse_args(args)
 
     # Define utility for listing directories
-    listdir = lambda pat: [op.join(pat, x) for x in os.listdir(pat)]
+    def listdir(pat):
+        return [op.join(pat, x) for x in os.listdir(pat)]
 
     # Grab and process the metadata
     json_files = listdir(results.json_dir)
