@@ -28,12 +28,20 @@ def filelist2df(file_list, mat=False):
                 akey = ['voxel_location', 'mm_location']
                 for ak in akey:
                     tmp_dict[ak] = np.array(tmp_dict[ak])
+                if tmp_dict[ak].shape == (1, 4):
+                    tmp_dict['noise_type'] = "single"
+                elif tmp_dict[ak].shape == (1, 3):
+                    tmp_dict['noise_type'] = "continuous"
+                else:
+                    tmp_dict['noise_type'] = "independent"
 
         # For the 1-voxel experiment, JSON names will be in the form:
         #  sub-[]_ses-[]_dwi_eddy_1vox-********.[ext]
         one_file = op.basename(one_file)
         tmp_dict['filename'] = one_file
         tmp_dict['subses'] = "_".join(one_file.split('_')[:2])
+        tmp_dict['sub'] = tmp_dict['subses'].split('_')[0].split('-')[1] 
+        tmp_dict['ses'] = tmp_dict['subses'].split('_')[1].split('-')[1]
 
         # If the file containes noise, grab the 8 character ID
         if "1vox" in one_file:
