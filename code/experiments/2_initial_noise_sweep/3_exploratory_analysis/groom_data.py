@@ -25,9 +25,11 @@ def filelist2df(file_list, mat=False):
         else:  # For JSON formatted data...
             with open(one_file) as fhandle:
                 tmp_dict = json.load(fhandle)
-                akey = ['voxel_location', 'mm_location']
+                akey = ['mm_location', 'voxel_location']
                 for ak in akey:
                     tmp_dict[ak] = np.array(tmp_dict[ak])
+
+                # Looking at the shame of 'voxel_location' to determine type
                 if tmp_dict[ak].shape == (1, 4):
                     tmp_dict['noise_type'] = "single"
                 elif tmp_dict[ak].shape == (1, 3):
