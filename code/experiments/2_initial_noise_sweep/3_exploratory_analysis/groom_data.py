@@ -83,7 +83,7 @@ def computedistances(df_meta, df_graphs, verbose=False):
     # For each subses ID...
     for ss in subses:
         if verbose:
-            print("Subject-Session: {0}  ".format(ss), end='\t')
+            print("Subject-Session: {0}  ".format(ss))
             print("Number of simulations: {0}".format(count_dict[ss]))
 
         # Grab the reference image (i.e. one without noise)
