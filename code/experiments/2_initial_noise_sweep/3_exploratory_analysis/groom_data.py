@@ -87,7 +87,7 @@ def computedistances(df_meta, df_graphs, verbose=False):
             print("Number of simulations: {0}".format(count_dict[ss]))
 
         # Grab the reference image (i.e. one without noise)
-        df_graphs_ss = df_graphs.query('subses == {0}'.format(ss))
+        df_graphs_ss = df_graphs.query('subses == "{0}"'.format(ss))
         ref = df_graphs_ss.loc[df_graphs_ss.noise_id.isnull()].iloc[0].graph
 
         # For each noise simulation...
@@ -123,17 +123,17 @@ def main(args=None):
     # Grab and process the metadata
     json_files = listdir(results.json_dir)
     df_meta = filelist2df(json_files)
-    print('Noise Info footprint: {0} MB'.format(df_footprint_mb(df_meta)))
 
     # Grab and process the graph data
     mat_files = listdir(results.graph_dir)
-    df_mat = filelist2df(mat_files, mat=True)
-    print('Graph footprint: {0} MB'.format(df_footprint_mb(df_mat)))
+    df_graphs = filelist2df(mat_files, mat=True)
+    print('Graph footprint: {0} MB'.format(df_footprint_mb(df_graphs)))
 
-    df_meta = computedistances(df_meta, df_mat)
+    df_meta = computedistances(df_meta, df_graphs)
 
+    print('Noise Info footprint: {0} MB'.format(df_footprint_mb(df_meta)))
     df_meta.to_hdf(results.output_path, "metadata", mode='a')
-    df_mat.to_hdf(results.output_path, "graphs", mode="a")
+    df_graphs.to_hdf(results.output_path, "graphs", mode="a")
 
 
 if __name__ == "__main__":
