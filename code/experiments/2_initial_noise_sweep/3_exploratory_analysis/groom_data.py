@@ -42,7 +42,7 @@ def filelist2df(file_list, mat=False):
         one_file = op.basename(one_file)
         tmp_dict['filename'] = one_file
         tmp_dict['subses'] = "_".join(one_file.split('_')[:2])
-        tmp_dict['sub'] = tmp_dict['subses'].split('_')[0].split('-')[1] 
+        tmp_dict['sub'] = tmp_dict['subses'].split('_')[0].split('-')[1]
         tmp_dict['ses'] = tmp_dict['subses'].split('_')[1].split('-')[1]
 
         # If the file containes noise, grab the 8 character ID
@@ -56,6 +56,47 @@ def filelist2df(file_list, mat=False):
 
     ldf = pd.DataFrame(list_of_dicts)
     return ldf
+
+
+def computedistances(df_meta, df_graphs, verbose=False):
+    # Define norms to be used
+    # Frobenius Norm
+    def fro(x, y):
+        return np.linalg.norm(x - y, ord='fro')
+
+    # Mean Squared Error
+    def mse(x, y):
+        return np.mean((x - y)**2)
+
+    # Sum of Squared Differences
+    def ssd(x, y):
+        return np.sum((x - y)**2)
+
+    norms = [fro, mse, ssd]
+
+    # Grab the unique subses IDs and add columns for norms
+    count_dict = df_meta.subses.value_counts().to_dict()
+    subses = list(count_dict.keys())
+    for norm in norms:
+        df_meta.loc[:, norm.__name__] = None
+
+    # For each subses ID...
+    for ss in subses:
+        if verbose:
+            print("Subject-Session: {0}  ".format(ss), end='\t')
+            print("Number of simulations: {0}".format(count_dict[ss]))
+
+        # Grab the reference image (i.e. one without noise)
+        df_graphs_ss = df_graphs.query('subses == {0}'.format(ss))
+        ref = df_graphs_ss.loc[df_graphs_ss.noise_id.isnull()].iloc[0].graph
+
+        # For each noise simulation...
+        for _, graph in df_graphs_ss.iterrows():
+            idx = df_meta.loc[df_meta.noise_id == graph.noise_id].index
+            for norm in norms:
+                df_meta.loc[idx, norm.__name__] = norm(ref, graph.graph)
+
+    return df_meta
 
 
 def main(args=None):
@@ -81,17 +122,18 @@ def main(args=None):
 
     # Grab and process the metadata
     json_files = listdir(results.json_dir)
-    json_df = filelist2df(json_files)
-    print('Noise Info footprint: {0} MB'.format(df_footprint_mb(json_df)))
-    json_df.to_hdf(results.output_path, "metadata", mode='a')
-    del json_df
+    df_meta = filelist2df(json_files)
+    print('Noise Info footprint: {0} MB'.format(df_footprint_mb(df_meta)))
 
     # Grab and process the graph data
     mat_files = listdir(results.graph_dir)
-    mat_df = filelist2df(mat_files, mat=True)
-    print('Graph footprint: {0} MB'.format(df_footprint_mb(mat_df)))
-    mat_df.to_hdf(results.output_path, "graphs", mode="a")
-    del mat_df
+    df_mat = filelist2df(mat_files, mat=True)
+    print('Graph footprint: {0} MB'.format(df_footprint_mb(df_mat)))
+
+    df_meta = computedistances(df_meta, df_mat)
+
+    df_meta.to_hdf(results.output_path, "metadata", mode='a')
+    df_mat.to_hdf(results.output_path, "graphs", mode="a")
 
 
 if __name__ == "__main__":
