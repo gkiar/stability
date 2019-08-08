@@ -2,7 +2,7 @@
     "author": "Greg Kiar <gkiar.github.io>",
     "command-line": "python3.6 /opt/dipy_deterministic_tracking.py [DIFFUSION_IMAGE] [BVECS] [BVALS] [WHITEMATTER_MASK] [SEED_MASK] [OUTPUT_DIRECTORY] [LABELS] [VERBOSE] [PRUNE] [STREAMLINE_PLOT] [BOUTIQUES]",
     "container-image": {
-        "image": "gkiar/dipy_deterministic_tracking:v0.1.0-fuzzy",
+        "image": "gkiar/dipy_deterministic_tracking:v0.2.0-fuzzy",
         "index": "index.docker.io",
         "type": "docker"
     },
@@ -169,5 +169,5 @@
             "noise"
         ]
     },
-    "tool-version": "v0.1.0"
+    "tool-version": "v0.2.0-fuzzy"
 }
