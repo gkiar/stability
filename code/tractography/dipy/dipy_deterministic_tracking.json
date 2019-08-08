@@ -7,6 +7,18 @@
         "type": "docker"
     },
     "description": "Pipeline for generating streamlines and creating connectomes from preprocessed diffusion images using Dipy. This tool is the boilerplate deterministic tractography provided within Dipy.",
+    "environment-variables": [
+        {
+            "name": "VERIFICARLO_MCAMODE",
+            "value": "MCA",
+            "description": "Options for MCA mode include: MCA (full replacement of floating point operations with Monte Carlo Arithmetic), PB (Precision Bounding inbound errors), RR (only rounding errors affected), and IEEE (standard error-free execution)."
+        },
+        {
+            "name": "VERIFICARLO_BACKEND",
+            "value":"QUAD",
+            "description": "Options for backend include: MPFR (GNU's multiple precision library), QUAD (uses gcc quad types; experimental but much faster)."
+        }
+    ],
     "inputs": [
         {
             "description": "Image containing a stack of DWI volumes, ideally preprocessed, to be used for tracing. If this is a nifti image, the image is used directly. If it is a JSON file, it is expected to be an output from the 'oneVoxel' noise-simulation tool and the image will be regenerated using the parameters contained in the JSON file.",
