@@ -7,16 +7,17 @@
         "type": "docker"
     },
     "description": "Pipeline for generating streamlines and creating connectomes from preprocessed diffusion images using Dipy. This tool is the boilerplate deterministic tractography provided within Dipy.",
+    "doi": "10.5281/zenodo.3338680",
     "environment-variables": [
         {
+            "description": "Options for MCA mode include: MCA (full replacement of floating point operations with Monte Carlo Arithmetic), PB (Precision Bounding inbound errors), RR (only rounding errors affected), and IEEE (standard error-free execution).",
             "name": "VERIFICARLO_MCAMODE",
-            "value": "MCA",
-            "description": "Options for MCA mode include: MCA (full replacement of floating point operations with Monte Carlo Arithmetic), PB (Precision Bounding inbound errors), RR (only rounding errors affected), and IEEE (standard error-free execution)."
+            "value": "MCA"
         },
         {
+            "description": "Options for backend include: MPFR (GNU's multiple precision library), QUAD (uses gcc quad types; experimental but much faster).",
             "name": "VERIFICARLO_BACKEND",
-            "value":"QUAD",
-            "description": "Options for backend include: MPFR (GNU's multiple precision library), QUAD (uses gcc quad types; experimental but much faster)."
+            "value": "QUAD"
         }
     ],
     "inputs": [
@@ -92,11 +93,11 @@
             "default-value": 3,
             "description": "Dictates the minimum length of fibers to keep. If fibers are shorter than the value, exclusive,then they will be thrown out. Default value is 3 nodes in the fiber.",
             "id": "prune",
+            "integer": true,
+            "minimum": 0,
             "name": "prune",
             "optional": true,
             "type": "Number",
-            "integer": true,
-            "minimum": 0,
             "value-key": "[PRUNE]"
         },
         {
