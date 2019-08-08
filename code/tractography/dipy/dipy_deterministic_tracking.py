@@ -40,8 +40,26 @@ def make_descriptor(parser, arguments=None):
             fhandle.write(json.dumps(invo, indent=4))
 
 
+def wrap_fuzzy_failures(fn, args=[], kwargs={}, errortype=Exception,
+                        failure_threshold=9, verbose=False):
+    failure_count = 0
+    while True:
+        try:
+            result = fn(*args, **kwargs)
+            break
+        except errortype:
+            failure_count += 1
+            if verbose:
+                print("Failure in {0} ({1} of {2})".format(fn.__name__,
+                                                           failure_count,
+                                                           failure_threshold))
+            if failure_count > failure_threshold:
+                raise(FloatingPointError("Too many failures; stopping."))
+    return result
+
+
 def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers,
-                              prune_length=3, plot=False):
+                              prune_length=3, plot=False, verbose=False):
     # Pipeline transcribed from:
     #   http://nipy.org/dipy/examples_built/introduction_to_basic_tracking.html
     # Load Images
@@ -67,15 +85,33 @@ def dwi_deterministic_tracing(image, bvecs, bvals, wm, seeds, fibers,
                                  mask=wm_data)
 
     # Classify tissue for high FA and create seeds
+    # (Putting this inside a looped try-block to handle fuzzy failures)
     classifier = ThresholdTissueClassifier(csa_peaks.gfa, 0.25)
-    seeds = utils.seeds_from_mask(seeds_data,
-                                  density=[2, 2, 2],
-                                  affine=np.eye(4))
+    seeds = wrap_fuzzy_failures(utils.seeds_from_mask,
+                                args=[seeds_data],
+                                kwargs={"density": [2, 2, 2],
+                                        "affine": np.eye(4)},
+                                errortype=ValueError,
+                                failure_threshold=5,
+                                verbose=verbose)
 
     # Perform deterministic tracing
-    streamlines_generator = LocalTracking(csa_peaks, classifier, seeds,
-                                          affine=np.eye(4), step_size=0.5)
-    streamlines = Streamlines(streamlines_generator)
+    # (Putting this inside a looped try-block to handle fuzzy failures)
+    streamlines_generator = wrap_fuzzy_failures(LocalTracking,
+                                                args=[csa_peaks,
+                                                      classifier,
+                                                      seeds],
+                                                kwargs={"affine": np.eye(4),
+                                                        "step_size": 0.5},
+                                                errortype=ValueError,
+                                                failure_threshold=5,
+                                                verbose=verbose)
+    streamlines = wrap_fuzzy_failures(Streamlines,
+                                      args=[streamlines_generator],
+                                      kwargs={},
+                                      errortype=IndexError,
+                                      failure_threshold=5,
+                                      verbose=verbose)
 
     # Prune streamlines
     streamlines = ArraySequence([strline
@@ -113,10 +149,10 @@ def streamlines2graph(streamlines, affine, parcellation, output_file):
         raise TypeError("Parcellation labels should be integers.")
 
     # Perform tracing
-    graph, grouping = utils.connectivity_matrix(streamlines, parcellation_data,
-                                                affine=affine,
-                                                return_mapping=True,
-                                                mapping_as_streamlines=True)
+    graph, _ = utils.connectivity_matrix(streamlines, parcellation_data,
+                                         affine=affine,
+                                         return_mapping=True,
+                                         mapping_as_streamlines=True)
     # Deleting edges with the background
     graph = np.delete(graph, (0), axis=0)
     graph = np.delete(graph, (0), axis=1)
@@ -206,7 +242,8 @@ def main(args=None):
         dwi_deterministic_tracing(image, results.bvecs, results.bvals,
                                   results.whitematter_mask,
                                   results.seed_mask,
-                                  fibers, plot=results.streamline_plot)
+                                  fibers, plot=results.streamline_plot,
+                                  verbose=verbose)
 
     streamlines = load_trk(fibers + ".trk")
     affine = streamlines[1]['voxel_to_rasmm']
