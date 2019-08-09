@@ -159,7 +159,10 @@ def streamlines2graph(streamlines, affine, parcellation, output_file):
 
     np.savetxt(output_file + ".mat", graph)
     plt.imshow(np.log1p(graph), interpolation='nearest')
-    plt.savefig(output_file + ".png")
+    try:
+        plt.savefig(output_file + ".png")
+    except ValueError:
+        pass
 
 
 def main(args=None):
