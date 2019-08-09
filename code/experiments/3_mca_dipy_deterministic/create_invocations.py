@@ -10,7 +10,8 @@ import random
 
 
 def gen_invos(files, example, rawdir, simoutdir, iters):
-    template = json.load(example)
+    with open(example) as fhandle:
+        template = json.load(fhandle)
     invos = []
     for fl in files:
         tmpinvo = deepcopy(template)
@@ -22,11 +23,10 @@ def gen_invos(files, example, rawdir, simoutdir, iters):
         tmpinvo["labels"] = glob(op.join(op.dirname(fl),"labels_*"))
         tmpinvo["output_directory"] = [op.join(simoutdir, "sim-" + str(idx))
                                        for idx in range(iters)]
-        tmpinvo["bvals"] = glob(op.join(rawdir,
-                                        'sub-*',
-                                        'ses-*',
-                                        op.basename(fl).strip('_eddy.nii.gz') +
-                                        '.bval'))
+        subses = "/".join(op.basename(fl).split("_")[:2])
+        tmpinvo["bvals"] = op.join(rawdir, subses, 'dwi',
+                                   op.basename(fl).replace('_eddy.nii.gz',
+                                                           '.bval'))
 
         invos += [tmpinvo]
     return invos
@@ -39,8 +39,8 @@ def main():
     parser.add_argument("invocation_directory")
     parser.add_argument("example_invocation")
     parser.add_argument("sim_outdir")
-    parser.add_argument("--subjs", "-s", default=10)
-    parser.add_argument("--iters", "-i", default=100)
+    parser.add_argument("--subjs", "-s", default=10, type=int)
+    parser.add_argument("--iters", "-i", default=100, type=int)
 
     results = parser.parse_args()
 
@@ -60,8 +60,8 @@ def main():
 
     for idx, invo in enumerate(invos):
         outpath = op.join(invodir, "invo-{0}.json".format(idx))
-        with open(outpath) as fhandle:
-            fhandle.write(json.dumps(invo))
+        with open(outpath, 'w') as fhandle:
+            fhandle.write(json.dumps(invo, indent=4))
 
 
 if __name__ == "__main__":
