@@ -7,8 +7,13 @@
         "type": "docker"
     },
     "description": "Pipeline for generating streamlines and creating connectomes from preprocessed diffusion images using Dipy. This tool is the boilerplate deterministic tractography provided within Dipy.",
-    "doi": "10.5281/zenodo.3338680",
+    "doi": "zenodo.3338680",
     "environment-variables": [
+        {
+            "description": "The virtual precision used for the floating point operations. It accepts an integer value that represents the virtual precision at which MCA operations are performed. Its default value is 53",
+            "name": "VERIFICARLO_PRECISION",
+            "value": "53"
+        },
         {
             "description": "Options for MCA mode include: MCA (full replacement of floating point operations with Monte Carlo Arithmetic), PB (Precision Bounding inbound errors), RR (only rounding errors affected), and IEEE (standard error-free execution).",
             "name": "VERIFICARLO_MCAMODE",
