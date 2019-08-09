@@ -6,6 +6,7 @@ from glob import glob
 import json
 from argparse import ArgumentParser
 from copy import deepcopy
+import random
 
 
 def gen_invos(files, example, rawdir, simoutdir, iters):
@@ -14,7 +15,6 @@ def gen_invos(files, example, rawdir, simoutdir, iters):
     for fl in files:
         tmpinvo = deepcopy(template)
 
-        subses_dirs = ""
         tmpinvo["diffusion_image"] = fl
         tmpinvo["bvecs"] = fl.replace(".nii.gz", ".eddy_rotated_bvecs")
         tmpinvo["whitematter_mask"] = fl.replace("dwi_eddy", "T1w_fast_seg_2")
@@ -25,7 +25,12 @@ def gen_invos(files, example, rawdir, simoutdir, iters):
         tmpinvo["bvals"] = glob(op.join(rawdir,
                                         'sub-*',
                                         'ses-*',
-                                        op.basename(fl).strip('.nii.gz') + '.bval'))
+                                        op.basename(fl).strip('_eddy.nii.gz') +
+                                        '.bval'))
+
+        invos += [tmpinvo]
+    return invos
+
 
 def main():
     parser = ArgumentParser()
@@ -46,8 +51,10 @@ def main():
     iters = results.iters
 
     s = results.subjs
-    files = glob(op.join(results.deriv_directory,
-                         "sub-*/ses-*/dwi/*eddy.nii.gz"))[0:s]
+    files = sorted(glob(op.join(results.deriv_directory,
+                                "sub-*/ses-*/dwi/*eddy.nii.gz")))
+    random.shuffle(files)
+    files = files[0:s]
 
     invos = gen_invos(files, example, rawdir, simdir, iters)
 
