@@ -80,8 +80,7 @@ def computedistances(df_graphs, verbose=False):
         ref = df_graphs_ss.loc[df_graphs_ss.noise_type.isnull()].iloc[0].graph
 
         # For each noise simulation...
-        for _, graph in df_graphs_ss.iterrows():
-            idx = graph.index
+        for idx, graph in df_graphs_ss.iterrows():
             for norm in norms:
                 df_graphs.loc[idx, norm.__name__] = norm(ref, graph.graph)
 
