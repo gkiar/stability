@@ -57,17 +57,17 @@ def computedistances(df_graphs, verbose=False):
     # Define norms to be used
     # Frobenius Norm
     def fro(x, y=None):
-        if y == None: y = np.zeros_like(x)
+        if y is None: y = np.zeros_like(x)
         return np.linalg.norm(x - y, ord='fro')
 
     # Mean Squared Error
     def mse(x, y=None):
-        if y == None: y = np.zeros_like(x)
+        if y is None: y = np.zeros_like(x)
         return np.mean((x - y)**2)
 
     # Sum of Squared Differences
     def ssd(x, y=None):
-        if y == None: y = np.zeros_like(x)
+        if y is None: y = np.zeros_like(x)
         return np.sum((x - y)**2)
 
     norms = [fro, mse, ssd]
