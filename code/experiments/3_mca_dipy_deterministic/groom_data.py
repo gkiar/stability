@@ -21,25 +21,31 @@ def filelist2df(file_list):
     list_of_dicts = []
     for one_file in file_list:
 
-        tmp_dict = {"graph": np.loadtxt(one_file)}
+        name_of_file = op.basename(one_file)
+        name_of_sim = op.basename(op.dirname(one_file))
+        name_of_setting = op.basename(op.dirname(op.dirname(one_file)))
 
-        if op.dirname(one_file).endswith("ref"):
+        tmp_dict = {}
+        if "ref" in name_of_setting:
             tmp_dict["noise_type"] = None
+            tmp_dict["noise_precision"] = None
+            tmp_dict["noise_backend"] = None
             tmp_dict["simulation_id"] = None
+            tmp_dict["os"] = name_of_sim
         else:
-            tmp_dict["noise_type"] = "mca"
+            tmp_dict["noise_type"] = name_of_setting
             tmp_dict["noise_precision"] = 53
             tmp_dict["noise_backend"] = "quad"
-            tmp_dict["simulation_id"] = op.dirname(one_file).split('sim-')[-1]
+            tmp_dict["simulation_id"] = int(name_of_sim.strip('sim-'))
+            tmp_dict["os"] = "ubuntu"
 
-        # For the 1-voxel experiment, file names will be in the form:
-        #  sub-[]_ses-[]_dwi_eddy_1vox-********.[ext]
-        one_file = op.basename(one_file)
-        tmp_dict['filename'] = one_file
-        tmp_dict['subses'] = "_".join(one_file.split('_')[:2])
+        #  sub-[]_ses-[]_dwi_eddy_******.mat
+        tmp_dict['filename'] = name_of_file
+        tmp_dict['subses'] = "_".join(name_of_file.split('_')[:2])
         tmp_dict['sub'] = tmp_dict['subses'].split('_')[0].split('-')[1]
         tmp_dict['ses'] = tmp_dict['subses'].split('_')[1].split('-')[1]
 
+        tmp_dict['graph'] = np.loadtxt(one_file)
         list_of_dicts.append(tmp_dict)
         del tmp_dict
 
@@ -50,15 +56,18 @@ def filelist2df(file_list):
 def computedistances(df_graphs, verbose=False):
     # Define norms to be used
     # Frobenius Norm
-    def fro(x, y):
+    def fro(x, y=None):
+        if y == None: y = np.zeros_like(x)
         return np.linalg.norm(x - y, ord='fro')
 
     # Mean Squared Error
-    def mse(x, y):
+    def mse(x, y=None):
+        if y == None: y = np.zeros_like(x)
         return np.mean((x - y)**2)
 
     # Sum of Squared Differences
-    def ssd(x, y):
+    def ssd(x, y=None):
+        if y == None: y = np.zeros_like(x)
         return np.sum((x - y)**2)
 
     norms = [fro, mse, ssd]
@@ -67,22 +76,26 @@ def computedistances(df_graphs, verbose=False):
     count_dict = df_graphs.subses.value_counts().to_dict()
     subses = list(count_dict.keys())
     for norm in norms:
-        df_graphs.loc[:, norm.__name__] = None
+        norm_col_name = norm.__name__ + " (self)"
+        df_graphs.loc[:, norm_col_name] = None
+
+        dist_col_name = norm.__name__ + " (ref)"
+        df_graphs.loc[:, dist_col_name] = None
 
     # For each subses ID...
     for ss in subses:
-        if verbose:
-            print("Subject-Session: {0}  ".format(ss))
-            print("Number of simulations: {0}".format(count_dict[ss]))
-
         # Grab the reference image (i.e. one without noise)
         df_graphs_ss = df_graphs.query('subses == "{0}"'.format(ss))
-        ref = df_graphs_ss.loc[df_graphs_ss.noise_type.isnull()].iloc[0].graph
+
+        # Get down to two references, then pick the ubuntu one
+        ref = df_graphs_ss.loc[df_graphs_ss.noise_type.isnull()]
+        ref = ref.query("os == 'ubuntu'").iloc[0].graph
 
         # For each noise simulation...
         for idx, graph in df_graphs_ss.iterrows():
+            df_graphs.loc[idx, norm_col_name] = norm(graph.graph)
             for norm in norms:
-                df_graphs.loc[idx, norm.__name__] = norm(ref, graph.graph)
+                df_graphs.loc[idx, dist_col_name] = norm(ref, graph.graph)
 
     return df_graphs
 
@@ -95,14 +108,15 @@ def main(args=None):
     parser.add_argument("graph_dir",
                         help="Corresponding directory containing graphs with "
                              "or without noise injected and stored in the .mat"
-                             " ASCII-encoded format.")
+                             " ASCII-encoded format. The directory structure "
+                             "expected is: graph_dir/setting/sim-#/graphs.mat")
     parser.add_argument("output_path",
                         help="Path to the dataframes containing groomed data.")
 
     results = parser.parse_args() if args is None else parser.parse_args(args)
 
     # Grab and process the graph data
-    mat_files = glob(op.join(results.graph_dir, '*.mat'))
+    mat_files = glob(op.join(results.graph_dir, '*', '*', '*.mat'))
     df_graphs = filelist2df(mat_files)
     df_graphs = computedistances(df_graphs)
 
