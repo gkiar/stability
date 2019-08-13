@@ -53,7 +53,7 @@ def filelist2df(file_list):
     return ldf
 
 
-def computedistances(df_graphs, verbose=False):
+def computedistances(df, verbose=False):
     # Define norms to be used
     # Frobenius Norm
     def fro(x, y=None):
@@ -73,31 +73,28 @@ def computedistances(df_graphs, verbose=False):
     norms = [fro, mse, ssd]
 
     # Grab the unique subses IDs and add columns for norms
-    count_dict = df_graphs.subses.value_counts().to_dict()
+    count_dict = df.subses.value_counts().to_dict()
     subses = list(count_dict.keys())
     for norm in norms:
-        norm_col_name = norm.__name__ + " (self)"
-        df_graphs.loc[:, norm_col_name] = None
-
-        dist_col_name = norm.__name__ + " (ref)"
-        df_graphs.loc[:, dist_col_name] = None
+        df.loc[:, norm.__name__ + " (self)"] = None
+        df.loc[:, norm.__name__ + " (ref)"] = None
 
     # For each subses ID...
     for ss in subses:
         # Grab the reference image (i.e. one without noise)
-        df_graphs_ss = df_graphs.query('subses == "{0}"'.format(ss))
+        df_ss = df.query('subses == "{0}"'.format(ss))
 
         # Get down to two references, then pick the ubuntu one
-        ref = df_graphs_ss.loc[df_graphs_ss.noise_type.isnull()]
+        ref = df_ss.loc[df_ss.noise_type.isnull()]
         ref = ref.query("os == 'ubuntu'").iloc[0].graph
 
         # For each noise simulation...
-        for idx, graph in df_graphs_ss.iterrows():
-            df_graphs.loc[idx, norm_col_name] = norm(graph.graph)
+        for idx, graph in df_ss.iterrows():
             for norm in norms:
-                df_graphs.loc[idx, dist_col_name] = norm(ref, graph.graph)
+                df.loc[idx, norm.__name__ + " (self)"] = norm(graph.graph)
+                df.loc[idx, norm.__name__ + " (ref)"] = norm(ref, graph.graph)
 
-    return df_graphs
+    return df
 
 
 def main(args=None):
