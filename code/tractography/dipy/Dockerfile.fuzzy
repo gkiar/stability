@@ -1,11 +1,11 @@
-FROM gkiar/fuzzy-python:fuzzless
-# FROM gkiar/fuzzy-python:dev
+# FROM gkiar/fuzzy-python:fuzzless
+FROM pablooliveira/fuzzy-python:latest
 
 RUN apt-get update -qqq &&\
     apt-get install -y libhdf5-dev &&\
     rm -rf /var/lib/apt/lists/
 
-RUN pip3.6 install numpy scipy cython &&\
+RUN pip3.6 install scipy cython &&\
     pip3.6 install nibabel matplotlib onevox boutiques &&\
     pip3.6 install dipy==0.16.0
 
