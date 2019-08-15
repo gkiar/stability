@@ -1,4 +1,5 @@
-FROM gkiar/fuzzy-python:dev
+FROM gkiar/fuzzy-python:fuzzless
+# FROM gkiar/fuzzy-python:dev
 
 RUN apt-get update -qqq &&\
     apt-get install -y libhdf5-dev &&\
