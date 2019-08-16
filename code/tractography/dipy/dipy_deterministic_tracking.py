@@ -242,11 +242,15 @@ def main(args=None):
     bn = op.basename(image).split('.')[0]
     fibers = op.join(results.output_directory, bn + "_fibers")
     if not op.isfile(fibers + ".trk"):
-        dwi_deterministic_tracing(image, results.bvecs, results.bvals,
-                                  results.whitematter_mask,
-                                  results.seed_mask,
-                                  fibers, plot=results.streamline_plot,
-                                  verbose=verbose)
+        wrap_fuzzy_failures(dwi_deterministic_tracing,
+                            args=[image, results.bvecs, results.bvals,
+                                  results.whitematter_mask, results.seed_mask,
+                                  fibers],
+                            kwargs={"plot": results.streamline_plot,
+                                    "verbose": verbose},
+                            errortype=Exception,
+                            failure_threshold=5,
+                            verbose=verbose)
 
     streamlines = load_trk(fibers + ".trk")
     affine = streamlines[1]['voxel_to_rasmm']

@@ -4,7 +4,7 @@
     "bvals": "/data/RocklandSample/sub-A00054358/ses-DS2/dwi/sub-A00054358_ses-DS2_dwi.bval",
     "whitematter_mask": "/data/RocklandSample/derivatives/sub-A00054358/ses-DS2/dwi/sub-A00054358_ses-DS2_T1w_fast_seg_2.nii.gz",
     "seed_mask": "/data/RocklandSample/derivatives/sub-A00054358/ses-DS2/dwi/sub-A00054358_ses-DS2_T1w_fast_seg_2_boundary.nii.gz",
-    "output_directory": "tmpout2",
+    "output_directory": "tmpout",
     "labels": [
         "/data/RocklandSample/derivatives/sub-A00054358/ses-DS2/dwi/labels_sub-A00054358_ses-DS2_dwi_DK_res-2x2x2.nii.gz"
     ],
