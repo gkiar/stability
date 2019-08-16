@@ -2,7 +2,7 @@
     "author": "Greg Kiar <gkiar.github.io>",
     "command-line": "python3.6 /opt/dipy_deterministic_tracking.py [DIFFUSION_IMAGE] [BVECS] [BVALS] [WHITEMATTER_MASK] [SEED_MASK] [OUTPUT_DIRECTORY] [LABELS] [VERBOSE] [PRUNE] [STREAMLINE_PLOT] [BOUTIQUES]",
     "container-image": {
-        "image": "gkiar/dipy_deterministic_tracking:v0.2.0-fuzzy",
+        "image": "gkiar/dipy_deterministic_tracking:v0.3.0-fuzzy",
         "index": "index.docker.io",
         "type": "docker"
     },
@@ -17,7 +17,7 @@
         {
             "description": "Options for MCA mode include: MCA (full replacement of floating point operations with Monte Carlo Arithmetic), PB (Precision Bounding inbound errors), RR (only rounding errors affected), and IEEE (standard error-free execution).",
             "name": "VERIFICARLO_MCAMODE",
-            "value": "MCA"
+            "value": "RR"
         },
         {
             "description": "Options for backend include: MPFR (GNU's multiple precision library), QUAD (uses gcc quad types; experimental but much faster).",
@@ -177,7 +177,7 @@
     "suggested-resources": {
         "cpu-cores": 1,
         "ram": 2048,
-        "walltime-estimate": 20
+        "walltime-estimate": 15
     },
     "tags": {
         "domain": [

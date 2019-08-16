@@ -11,4 +11,6 @@ RUN pip3.6 install scipy cython &&\
 
 COPY ./dipy_deterministic_tracking.py /opt/dipy_deterministic_tracking.py
 
+ENV VERIFICARLO_MCAMODE RR
+
 ENTRYPOINT ["python3.6", "/opt/dipy_deterministic_tracking.py"]
