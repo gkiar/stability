@@ -1,0 +1,179 @@
+{
+    "author": "Darrin Fong",
+    "command-line": "dwi2mask [GRAD] [FSLGRAD] [BVECS] [BVALS] [BVALUE_SCALING] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [FAILONWARN] [HELP] [VERSION] [INPUT_DWI] [OUTPUT_MASK]",
+    "container-image": {
+        "image": "darrinfong/mrtrix3:latest",
+        "index": "index.docker.io",
+        "type": "docker"
+    },
+    "name": "dwi2mask Brain mask generator",
+    "description": "Generates an whole brain mask from a DWI image.All diffusion weighted and b=0 volumes are used to obtain a mask that includes both brain tissue and CSF",
+    "inputs": [
+        {
+            "command-line-flag": "-grad",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition. The program will normally attempt to use the encoding stored in the image header. This should be supplied as a 4xN text file with each line is in the format [ X Y Z b ], where [ X Y Z ] describe the direction of the applied gradient, and b gives the b-value in units of s/mm^2.",
+            "id": "grad",
+            "name": "grad",
+            "optional": true,
+            "type": "File",
+            "value-key": "[GRAD]"
+        },
+        {
+            "command-line-flag": "-fslgrad",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs/bvals format.",
+            "id": "fslgrad",
+            "name": "fslgrad",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FSLGRAD]",
+            "requires-inputs": ["bvecs", "bvals"]
+        },
+        {
+            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs format.",
+            "id": "bvecs",
+            "name": "bvecs",
+            "optional": true,
+            "type": "File",
+            "value-key": "[BVECS]",
+            "requires-inputs": ["fslgrad", "bvals"]
+        },
+        {
+            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvals format.",
+            "id": "bvals",
+            "name": "bvals",
+            "optional": true,
+            "type": "File",
+            "value-key": "[BVALS]",
+            "requires-inputs": ["fslgrad", "bvecs"]
+        },
+        {
+            "command-line-flag": "-bvalue_scaling",
+            "description": "Specifies whether the b-values should be scaled by the square of the corresponding DW gradient norm, as often required for multi-shell or DSI DW acquisition schemes. The default action can also be set in the MRtrix config file, under the BValueScaling entry. Valid choices are yes/no, true/false, 0/1.",
+            "id": "bvalue_scaling",
+            "name": "bvalue_scaling",
+            "optional": true,
+            "type": "String",
+            "value-key": "[BVALUE_SCALING]",
+            "value-choices": ["yes", "no", "true", "false", "0", "1"]
+        },
+        {
+            "command-line-flag": "-info",
+            "description": "Display information messages.",
+            "id": "info",
+            "name": "info",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[INFO]"
+        },
+        {
+            "command-line-flag": "-quiet",
+            "description": "Do not display information messages or progress status.",
+            "id": "quiet",
+            "name": "quiet",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[QUIET]"
+        },
+        {
+            "command-line-flag": "-debug",
+            "description": "Display debugging messages.",
+            "id": "debug",
+            "name": "debug",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[DEBUG]"
+        },
+        {
+            "command-line-flag": "-force",
+            "description": "Force overwrite of output files.",
+            "id": "force",
+            "name": "force",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FORCE]"
+        },
+        {
+            "command-line-flag": "-nthreads",
+            "description": "Use this number of threads in multi-threaded applications",
+            "id": "nthreads",
+            "name": "nthreads",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[NTHREADS]"
+        },
+        {
+            "command-line-flag": "-failonwarn",
+            "description": "Terminate program if a warning is produced",
+            "id": "failonwarn",
+            "name": "failonwarn",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FAILONWARN]"
+        },
+        {
+            "command-line-flag": "-help",
+            "description": "Display this information page and exit",
+            "id": "help",
+            "name": "help",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[HELP]"
+        },
+        {
+            "command-line-flag": "-version",
+            "description": "Display version information and exit",
+            "id": "version",
+            "name": "version",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[VERSION]"
+        },
+        {
+            "description": "The input DWI image containing volumes that are both diffusion weighted and b=0",
+            "id": "input_dwi",
+            "name": "input_dwi",
+            "optional": false,
+            "type": "File",
+            "value-key": "[INPUT_DWI]"
+        },
+        {
+            "description": "The output whole brain mask image",
+            "id": "output_mask",
+            "name": "output_mask",
+            "optional": false,
+            "type": "String",
+            "value-key": "[OUTPUT_MASK]"
+        }
+    ],
+    "output-files": [
+        {
+            "id": "fibers",
+            "name": "Fibers",
+            "description": "the output whole brain mask image",
+            "optional": false,
+            "path-template": "[OUTPUT_MASK].trk",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii",
+                ".json"
+            ]
+        }
+    ],
+    "schema-version": "0.5",
+    "suggested-resources": {
+        "cpu-cores": 1,
+        "ram": 2048,
+        "walltime-estimate": 20
+    },
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "image processing",
+            "mri",
+            "dwi",
+            "tractography"
+        ]
+    },
+    "tool-version": "v0.1.0"
+}

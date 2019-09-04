@@ -1,0 +1,303 @@
+{
+    "author": "Darrin Fong",
+    "command-line": "dwi2fod [GRAD] [FSLGRAD] [BVECS] [BVALS] [BVALUE_SCALING] [SHELL] [DIRECTIONS] [LMAX] [MASK] [FILTER] [NEG_LAMBDA] [NORM_LAMBDA] [THRESHOLD] [NITER] [STRIDE] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [FAILONWARN] [HELP] [VERSION] [ALGORITHM] [DWI] [RESPONSE] [ODF]",
+    "container-image": {
+        "image": "darrinfong/mrtrix3:latest",
+        "index": "index.docker.io",
+        "type": "docker"
+    },
+    "name": "dwi2fod Spherical deconvolution",
+    "description": "Estimate fibre orientation distributions from diffusion data using spherical deconvolution.",
+    "inputs": [
+        {
+            "command-line-flag": "-grad",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition. The program will normally attempt to use the encoding stored in the image header. This should be supplied as a 4xN text file with each line is in the format [ X Y Z b ], where [ X Y Z ] describe the direction of the applied gradient, and b gives the b-value in units of s/mm^2.",
+            "id": "grad",
+            "name": "grad",
+            "optional": true,
+            "type": "File",
+            "value-key": "[GRAD]"
+        },
+        {
+            "command-line-flag": "-fslgrad",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs/bvals format.",
+            "id": "fslgrad",
+            "name": "fslgrad",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FSLGRAD]",
+            "requires-inputs": ["bvecs", "bvals"]
+        },
+        {
+            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs format.",
+            "id": "bvecs",
+            "name": "bvecs",
+            "optional": true,
+            "type": "File",
+            "value-key": "[BVECS]",
+            "requires-inputs": ["fslgrad", "bvals"]
+        },
+        {
+            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvals format.",
+            "id": "bvals",
+            "name": "bvals",
+            "optional": true,
+            "type": "File",
+            "value-key": "[BVALS]",
+            "requires-inputs": ["fslgrad", "bvecs"]
+        },
+        {
+            "command-line-flag": "-bvalue_scaling",
+            "description": "Specifies whether the b-values should be scaled by the square of the corresponding DW gradient norm, as often required for multi-shell or DSI DW acquisition schemes. The default action can also be set in the MRtrix config file, under the BValueScaling entry. Valid choices are yes/no, true/false, 0/1 (default: true).",
+            "id": "bvalue_scaling",
+            "name": "bvalue_scaling",
+            "optional": true,
+            "type": "String",
+            "value-key": "[BVALUE_SCALING]",
+            "value-choices": ["yes", "no", "true", "false", "0", "1"],
+            "default-value": "true"
+        },
+        {
+            "command-line-flag": "-shell",
+            "description": "Specify one or more diffusion-weighted gradient shells to use during processing, as a comma-separated list of the desired approximate b-values. Note that some commands are incompatible with multiple shells, and will throw an error if more than one b-value are provided.",
+            "id": "shell",
+            "name": "Diffusion-weighted gradient shell(s)",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "value-key": "[SHELL]"
+        },
+        {
+            "command-line-flag": "-directions",
+            "description": "Specify the directions over which to apply the non-negativity constraint (by default, the built-in 300 direction set is used). These should be supplied as a text file containing the [ az el ] pairs for the directions.",
+            "id": "directions",
+            "name": "directions",
+            "optional": true,
+            "type": "File",
+            "value-key": "[DIRECTIONS]"
+        },
+        {
+            "command-line-flag": "-lmax",
+            "description": "The maximum spherical harmonic order for the output FOD(s).For algorithms with multiple outputs, this should be provided as a comma-separated list of integers, one for each output image; for single-output algorithms, only a single integer should be provided. If omitted, the command will use the highest possible lmax given the diffusion gradient table, up to a maximum of 8.",
+            "id": "lmax",
+            "name": "Maximum harmonic order",
+            "optional": true,
+            "type": "Number",
+            "maximum": 8,
+            "value-key": "[LMAX]"
+        },
+        {
+            "command-line-flag": "-mask",
+            "description": "Only perform computation within the specified binary brain mask image.",
+            "id": "mask",
+            "name": "mask",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[MASK]"
+        },
+        {
+            "command-line-flag": "-filter",
+            "description": "The linear frequency filtering parameters used for the initial linear spherical deconvolution step (default = [ 1 1 1 0 0 ]). These should be supplied as a text file containing the filtering coefficients for each even harmonic order.",
+            "id": "filter",
+            "name": "filter",
+            "optional": true,
+            "type": "File",
+            "value-key": "[FILTER]"
+        },
+        {
+            "command-line-flag": "-neg_lambda",
+            "description": "The regularisation parameter lambda that controls the strength of the non-negativity constraint (default = 1.0).",
+            "id": "neg_lambda",
+            "name": "neg_lambda",
+            "optional": true,
+            "default-value": 1.0,
+            "type": "Number",
+            "value-key": "[NEG_LAMBDA]"
+        },
+        {
+            "command-line-flag": "-norm_lambda",
+            "description": "The regularisation parameter lambda that controls the strength of the constraint on the norm of the solution (default = 1.0).",
+            "id": "norm_lambda",
+            "name": "norm_lambda",
+            "optional": true,
+            "default-value": 1.0,
+            "type": "Number",
+            "value-key": "[NORM_LAMBDA]"
+        },
+        {
+            "command-line-flag": "-threshold",
+            "description": "The threshold below which the amplitude of the FOD is assumed to be zero, expressed as an absolute amplitude (default = 0.0).",
+            "id": "threshold",
+            "name": "Amplitude threshold",
+            "optional": true,
+            "default-value": 0.0,
+            "type": "Number",
+            "value-key": "[THRESHOLD]"
+        },
+        {
+            "command-line-flag": "-niter",
+            "description": "The maximum number of iterations to perform for each voxel (default = 50). Use '-niter 0' for a linear unconstrained spherical deconvolution.",
+            "id": "niter",
+            "name": "niter",
+            "optional": true,
+            "integer": true,
+            "default-value": 50,
+            "type": "Number",
+            "value-key": "[NITER]"
+        },
+        {
+            "command-line-flag": "-stride",
+            "description": "Specify the strides of the output data in memory, as a comma-separated list. The actual strides produced will depend on whether the output image format can support it.",
+            "id": "stride",
+            "name": "stride",
+            "optional": true,
+            "list": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[STRIDE]"
+        },
+        {
+            "command-line-flag": "-info",
+            "description": "Display information messages.",
+            "id": "info",
+            "name": "info",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[INFO]"
+        },
+        {
+            "command-line-flag": "-quiet",
+            "description": "Do not display information messages or progress status.",
+            "id": "quiet",
+            "name": "quiet",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[QUIET]"
+        },
+        {
+            "command-line-flag": "-debug",
+            "description": "Display debugging messages.",
+            "id": "debug",
+            "name": "debug",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[DEBUG]"
+        },
+        {
+            "command-line-flag": "-force",
+            "description": "Force overwrite of output files. Caution: Using the same file as input and output might cause unexpected behaviour.",
+            "id": "force",
+            "name": "force",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FORCE]"
+        },
+        {
+            "command-line-flag": "-nthreads",
+            "description": "Use this number of threads in multi-threaded applications (set to 0 to disable multi-threading)",
+            "id": "nthreads",
+            "name": "nthreads",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[NTHREADS]"
+        },
+        {
+            "command-line-flag": "-failonwarn",
+            "description": "Terminate program if a warning is produced",
+            "id": "failonwarn",
+            "name": "failonwarn",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FAILONWARN]"
+        },
+        {
+            "command-line-flag": "-help",
+            "description": "Display this information page and exit",
+            "id": "help",
+            "name": "help",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[HELP]"
+        },
+        {
+            "command-line-flag": "-version",
+            "description": "Display version information and exit",
+            "id": "version",
+            "name": "version",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[VERSION]"
+        },
+        {
+            "description": "The algorithm to use for FOD estimation. (options are: csd, msmt_csd)",
+            "id": "algorithm",
+            "name": "algorithm",
+            "optional": false,
+            "type": "String",
+            "value-choices": ["csd", "msmt_csd"],
+            "value-key": "[ALGORITHM]"
+        },
+        {
+            "description": "The input diffusion-weighted images",
+            "id": "dwi",
+            "name": "dwi input",
+            "optional": false,
+            "type": "File",
+            "value-key": "[DWI]"
+        },
+        {
+            "description": "A text file containing the diffusion-weighted signal response function coefficients for a single fibre population",
+            "id": "response",
+            "name": "response output",
+            "optional": false,
+            "type": "File",
+            "value-key": "[RESPONSE]"
+        },
+        {
+            "description": "The output spherical harmonics coefficients image.",
+            "id": "odf",
+            "name": "odf images",
+            "optional": false,
+            "type": "File",
+            "value-key": "[ODF]"
+        }
+    ],
+    "output-files": [
+        {
+            "id": "response_output",
+            "name": "response output",
+            "optional": false,
+            "path-template": "[RESPONSE].txt",
+            "path-template-stripped-extensions": [
+                ".txt"
+            ]
+        },
+        {
+            "id": "odf_output",
+            "name": "Spherical harmonics coefficients image output",
+            "optional": true,
+            "path-template": "[ODF].nii",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii"
+            ]
+        }
+    ],
+    "schema-version": "0.5",
+    "suggested-resources": {
+        "cpu-cores": 1,
+        "ram": 2048,
+        "walltime-estimate": 20
+    },
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "image processing",
+            "mri",
+            "dwi",
+            "tractography"
+        ]
+    },
+    "tool-version": "v0.1.0"
+}

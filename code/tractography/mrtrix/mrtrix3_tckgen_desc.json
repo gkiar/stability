@@ -1,0 +1,574 @@
+{
+    "author": "Darrin Fong",
+    "command-line": "tckgen [ALGORITHM] [INCLUDE_BIN_MASK] [INCLUDE_SPHERE] [EXCLUDE_BIN_MASK] [EXCLUDE_SPHERE] [MASK_BIN_MASK] [MASK_SPHERE] [STEP] [ANGLE] [NUMBER] [MAXNUM] [MAXLENGTH] [MINLENGTH] [CUTOFF] [INITCUTOFF] [TRIALS] [UNIDIRECTIONAL] [INITDIRECTION] [NOPRECOMPUTED] [POWER] [SAMPLES] [R4K] [STOP] [DOWNSAMPLE] [ACT] [BACKTRACK] [CROP_AT_GMWMI] [SEED_SPHERE] [SEED_IMAGE] [SEED_RANDOM_PER_VOXEL] [NUM_PER_VOXEL] [SEED_GRID_PER_VOXEL] [GRID_SIZE] [SEED_REJECTION] [SEED_GMWMI] [SEED_DYNAMIC] [MAX_SEED_ATTEMPTS] [OUTPUT_SEEDS] [GRAD] [FSLGRAD] [BVECS] [BVALS] [BVALUE_SCALING] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [FAILONWARN] [HELP] [VERSION] [SOURCE] [TRACKS]",
+    "container-image": {
+        "image": "darrinfong/mrtrix3:latest",
+        "index": "index.docker.io",
+        "type": "docker"
+    },
+    "name": "tckgen Streamlines tractography",
+    "description": "Perform streamlines tractography.",
+    "inputs": [
+        {
+            "command-line-flag": "-algorithm",
+            "description": "Specify the tractography algorithm to use. Valid choices are: FACT, iFOD1, iFOD2, Nulldist, SD_Stream, Seedtest, Tensor_Det, Tensor_Prob (default: iFOD2).",
+            "id": "algorithm",
+            "name": "algorithm",
+            "optional": true,
+            "value-choices": ["FACT", "iFOD1", "iFOD2", "Nulldist", "SD_Stream", "Seedtest", "Tensor_Det", "Tensor_Prob"],
+            "type": "String",
+            "default-value": "iFOD2",
+            "value-key": "[ALGORITHM]"
+        },
+        {
+            "command-line-flag": "-include",
+            "description": "Specify an inclusion region of interest, as either a binary mask image. Streamlines must traverse ALL inclusion regions to be accepted.",
+            "id": "include_bin_mask",
+            "name": "include binary mask region",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["include_sphere"],
+            "value-key": "[INCLUDE_BIN_MASK]"
+        },
+        {
+            "command-line-flag": "-include",
+            "description": "Specify an inclusion region of interest, as a sphere using 4 comma-separared values (x,y,z,radius). Streamlines must traverse ALL inclusion regions to be accepted.",
+            "id": "include_sphere",
+            "name": "include sphere region",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "disables-inputs": ["include_bin_mask"],
+            "value-key": "[INCLUDE_SPHERE]"
+        },
+        {
+            "command-line-flag": "-exclude",
+            "description": "Specify an exclusion region of interest, as either a binary mask image. Streamlines that enter ANY exclude region will be discarded.",
+            "id": "exclude_bin_mask",
+            "name": "exclude binary mask region",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["exclude_sphere"],
+            "value-key": "[EXCLUDE_BIN_MASK]"
+        },
+        {
+            "command-line-flag": "-exclude",
+            "description": "Specify an exclusion region of interest, as a sphere using 4 comma-separared values (x,y,z,radius). Streamlines that enter ANY exclude region will be discarded.",
+            "id": "exclude_sphere",
+            "name": "exclude sphere region",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "disables-inputs": ["exclude_bin_mask"],
+            "value-key": "[EXCLUDE_SPHERE]"
+        },
+        {
+            "command-line-flag": "-mask",
+            "description": "Specify a masking region of interest, as either a binary mask image. If defined, streamlines exiting the mask will be truncated.",
+            "id": "mask_bin_mask",
+            "name": "mask binary mask region",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["mask_sphere"],
+            "value-key": "[MASK_BIN_MASK]"
+        },
+        {
+            "command-line-flag": "-mask",
+            "description": "Specify a masking region of interest, as a sphere using 4 comma-separared values (x,y,z,radius). If defined, streamlines exiting the mask will be truncated.",
+            "id": "mask_sphere",
+            "name": "mask sphere region",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "disables-inputs": ["mask_bin_mask"],
+            "value-key": "[MASK_SPHERE]"
+        },
+        {
+            "command-line-flag": "-step",
+            "description": "Set the step size of the algorithm in mm (default is 0.1 x voxelsize; for iFOD2: 0.5 x voxelsize).",
+            "id": "step",
+            "name": "step",
+            "optional": true,
+            "type": "Number",
+            "default-value": 0.1,
+            "value-key": "[STEP]"
+        },
+        {
+            "command-line-flag": "-angle",
+            "description": "Set the maximum angle between successive steps (default is 90deg x stepsize / voxelsize).",
+            "id": "angle",
+            "name": "angle",
+            "optional": true,
+            "type": "Number",
+            "default-value": 90,
+            "value-key": "[ANGLE]"
+        },
+        {
+            "command-line-flag": "-number",
+            "description": "Set the desired number of tracks. The program will continue to generate tracks until this number of tracks have been selected and written to the output file.",
+            "id": "number",
+            "name": "number",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[NUMBER]"
+        },
+        {
+            "command-line-flag": "-maxnum",
+            "description": "Set the maximum number of tracks to generate. The program will not generate more tracks than this number, even if the desired number of tracks hasn't yet been reached (default is 100 x number).",
+            "id": "maxnum",
+            "name": "maxnum",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "default-value": 100,
+            "value-key": "[MAXNUM]"
+        },
+        {
+            "command-line-flag": "-maxlength",
+            "description": "Set the maximum length of any track in mm (default is 100 x voxelsize).",
+            "id": "maxlength",
+            "name": "maxlength",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "default-value": 100,
+            "value-key": "[MAXLENGTH]"
+        },
+        {
+            "command-line-flag": "-minlength",
+            "description": "Set the minimum length of any track in mm (default is 5 x voxelsize).",
+            "id": "minlength",
+            "name": "minlength",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "default-value": 5,
+            "value-key": "[MINLENGTH]"
+        },
+        {
+            "command-line-flag": "-cutoff",
+            "description": "Set the FA or FOD amplitude cutoff for terminating tracks (default is 0.1).",
+            "id": "cutoff",
+            "name": "cutoff",
+            "optional": true,
+            "type": "Number",
+            "default-value": 0.1,
+            "value-key": "[CUTOFF]"
+        },
+        {
+            "command-line-flag": "-initcutoff",
+            "description": "Set the minimum FA or FOD amplitude for initiating tracks (default is the same as the normal cutoff).",
+            "id": "initcutoff",
+            "name": "initcutoff",
+            "optional": true,
+            "type": "Number",
+            "default-value": 0.1,
+            "value-key": "[INITCUTOFF]"
+        },
+        {
+            "command-line-flag": "-trials",
+            "description": "Set the maximum number of sampling trials at each point (only used for probabilistic tracking).",
+            "id": "trials",
+            "name": "trials",
+            "optional": true,
+            "integer":true,
+            "type": "Number",
+            "value-key": "[TRIALS]"
+        },
+        {
+            "command-line-flag": "-unidirectional",
+            "description": "Track from the seed point in one direction only (default is to track in both directions).",
+            "id": "unidirectional",
+            "name": "unidirectional",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[UNIDIRECTIONAL]"
+        },
+        {
+            "command-line-flag": "-initdirection",
+            "description": "Specify an initial direction for the tracking (this should be supplied as a vector of 3 comma-separated values.",
+            "id": "initdirection",
+            "name": "initdirection",
+            "optional": true,
+            "list":true,
+            "type": "Number",
+            "value-key": "[INITDIRECTION]"
+        },
+        {
+            "command-line-flag": "-noprecomputed",
+            "description": "Do NOT pre-compute legendre polynomial values. Warning: this will slow down the algorithm by a factor of approximately 4.",
+            "id": "noprecomputed",
+            "name": "noprecomputed",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[NOPRECOMPUTED]"
+        },
+        {
+            "command-line-flag": "-power",
+            "description": "Raise the FOD to the power specified (default is 1/nsamples).",
+            "id": "power",
+            "name": "power",
+            "optional": true,
+            "type": "Number",
+            "default-value": 1,
+            "value-key": "[POWER]"
+        },
+        {
+            "command-line-flag": "-samples",
+            "description": "Set the number of FOD samples to take per step for the 2nd order (iFOD2) method (Default: 4).",
+            "id": "samples",
+            "name": "samples",
+            "optional": true,
+            "integer":true,
+            "type": "Number",
+            "default-value": 4,
+            "value-key": "[SAMPLES]"
+        },
+        {
+            "command-line-flag": "-rk4",
+            "description": "Use 4th-order Runge-Kutta integration (slower, but eliminates curvature overshoot in 1st-order deterministic methods)",
+            "id": "rk4",
+            "name": "rk4",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[R4K]"
+        },
+        {
+            "command-line-flag": "-stop",
+            "description": "Stop propagating a streamline once it has traversed all include regions",
+            "id": "stop",
+            "name": "stop",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[STOP]"
+        },
+        {
+            "command-line-flag": "-downsample",
+            "description": "Downsample the generated streamlines to reduce output file size",
+            "id": "downsample",
+            "name": "downsample",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[DOWNSAMPLE]"
+        },
+        {
+            "command-line-flag": "-act",
+            "description": "Use the Anatomically-Constrained Tractography framework during tracking; provided image must be in the 5TT (five-tissue-type) format",
+            "id": "act",
+            "name": "act",
+            "optional": true,
+            "type": "File",
+            "value-key": "[ACT]"
+        },
+        {
+            "command-line-flag": "-backtrack",
+            "description": "Allow tracks to be truncated and re-tracked if a poor structural termination is encountered",
+            "id": "backtrack",
+            "name": "backtrack",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[BACKTRACK]"
+        },
+        {
+            "command-line-flag": "-crop_at_gmwmi",
+            "description": "Crop streamline endpoints more precisely as they cross the GM-WM interface",
+            "id": "crop_at_gmwmi",
+            "name": "crop_at_gmwmi",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[CROP_AT_GMWMI]"
+        },
+        {
+            "command-line-flag": "-seed_sphere",
+            "description": "Spherical seed as four comma-separated values (XYZ position and radius)",
+            "id": "seed_sphere",
+            "name": "seed_sphere",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "disables-inputs": ["seed_dynamic"],
+            "value-key": "[SEED_SPHERE]"
+        },
+        {
+            "command-line-flag": "-seed_image",
+            "description": "Seed streamlines entirely at random within a mask image (this is the same behaviour as the streamline seeding in MRtrix 0.2)",
+            "id": "seed_image",
+            "name": "seed_image",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["seed_dynamic"],
+            "value-key": "[SEED_IMAGE]"
+        },
+        {
+            "command-line-flag": "-seed_random_per_voxel",
+            "description": "Seed a fixed number of streamlines per voxel in a mask image; random placement of seeds in each voxel",
+            "id": "seed_random_per_voxel",
+            "name": "seed_random_per_voxel",
+            "optional": true,
+            "type": "File",
+            "requires-inputs": ["num_per_voxel"],
+            "disables-inputs": ["seed_dynamic"],
+            "value-key": "[SEED_RANDOM_PER_VOXEL]"
+        },
+        {
+            "description": "Seed a fixed number of streamlines per voxel in a mask image; random placement of seeds in each voxel",
+            "id": "num_per_voxel",
+            "name": "Streamlines number per voxel",
+            "optional": true,
+            "type": "Number",
+            "requires-inputs": ["seed_random_per_voxel"],
+            "disables-inputs": ["seed_dynamic"],
+            "value-key": "[NUM_PER_VOXEL]"
+        },
+        {
+            "command-line-flag": "-seed_grid_per_voxel",
+            "description": "Seed a fixed number of streamlines per voxel in a mask image; place seeds on a 3D mesh grid (grid_size argument is per axis; so a grid_size of 3 results in 27 seeds per voxel)",
+            "id": "seed_grid_per_voxel",
+            "name": "seed_grid_per_voxel",
+            "optional": true,
+            "type": "File",
+            "requires-inputs": ["grid_size"],
+            "disables-inputs": ["seed_dynamic"],
+            "value-key": "[SEED_GRID_PER_VOXEL]"
+        },
+        {
+            "description": "Seed a fixed number of streamlines per voxel in a mask image; place seeds on a 3D mesh grid (grid_size argument is per axis; so a grid_size of 3 results in 27 seeds per voxel)",
+            "id": "grid_size",
+            "name": "3D Seeds mesh grid",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "requires-inputs": ["seed_grid_per_voxel"],
+            "disables-inputs": ["seed_dynamic"],
+            "value-key": "[GRID_SIZE]"
+        },
+        {
+            "command-line-flag": "-seed_rejection",
+            "description": "Seed from an image using rejection sampling (higher values = more probable to seed from)",
+            "id": "seed_rejection",
+            "name": "seed_rejection",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["seed_dynamic"],
+            "value-key": "[SEED_REJECTION]"
+        },
+        {
+            "command-line-flag": "-seed_gmwmi",
+            "description": "Seed from the grey matter - white matter interface (only valid if using ACT framework)",
+            "id": "seed_gmwmi",
+            "name": "seed_gmwmi",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["seed_dynamic"],
+            "value-key": "[SEED_GMWMI]"
+        },
+        {
+            "command-line-flag": "-seed_dynamic",
+            "description": "Determine seed points dynamically using the SIFT model (must NOT provide any other seeding mechanism)",
+            "id": "seed_dynamic",
+            "name": "seed_dynamic",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["seed_sphere", "seed_image", "seed_random_per_voxel", "seed_grid_per_voxel", "seed_rejection", "seed_gmwmi"],
+            "value-key": "[SEED_DYNAMIC]"
+        },
+        {
+            "command-line-flag": "-max_seed_attempts",
+            "description": "Set the maximum number of times that the tracking algorithm should attempt to find an appropriate tracking direction from a given seed point",
+            "id": "max_seed_attempts",
+            "name": "max_seed_attempts",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[MAX_SEED_ATTEMPTS]"
+        },
+        {
+            "command-line-flag": "-output_seeds",
+            "description": "Output the seed location of all successful streamlines to a file",
+            "id": "output_seeds",
+            "name": "output_seeds",
+            "optional": true,
+            "type": "String",
+            "value-key": "[OUTPUT_SEEDS]"
+        },
+        {
+            "command-line-flag": "-grad",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition. The program will normally attempt to use the encoding stored in the image header. This should be supplied as a 4xN text file with each line is in the format [ X Y Z b ], where [ X Y Z ] describe the direction of the applied gradient, and b gives the b-value in units of s/mm^2.",
+            "id": "grad",
+            "name": "grad",
+            "optional": true,
+            "type": "File",
+            "value-key": "[GRAD]"
+        },
+        {
+            "command-line-flag": "-fslgrad",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs/bvals format.",
+            "id": "fslgrad",
+            "name": "fslgrad",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FSLGRAD]",
+            "requires-inputs": ["bvecs", "bvals"]
+        },
+        {
+            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs format.",
+            "id": "bvecs",
+            "name": "bvecs",
+            "optional": true,
+            "type": "File",
+            "value-key": "[BVECS]",
+            "requires-inputs": ["fslgrad", "bvals"]
+        },
+        {
+            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvals format.",
+            "id": "bvals",
+            "name": "bvals",
+            "optional": true,
+            "type": "File",
+            "value-key": "[BVALS]",
+            "requires-inputs": ["fslgrad", "bvecs"]
+        },
+        {
+            "command-line-flag": "-bvalue_scaling",
+            "description": "Specifies whether the b-values should be scaled by the square of the corresponding DW gradient norm, as often required for multi-shell or DSI DW acquisition schemes. The default action can also be set in the MRtrix config file, under the BValueScaling entry. Valid choices are yes/no, true/false, 0/1.",
+            "id": "bvalue_scaling",
+            "name": "bvalue_scaling",
+            "optional": true,
+            "type": "String",
+            "value-key": "[BVALUE_SCALING]",
+            "value-choices": ["yes", "no", "true", "false", "0", "1"]
+        },
+        {
+            "command-line-flag": "-info",
+            "description": "Display information messages.",
+            "id": "info",
+            "name": "info",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[INFO]"
+        },
+        {
+            "command-line-flag": "-quiet",
+            "description": "Do not display information messages or progress status.",
+            "id": "quiet",
+            "name": "quiet",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[QUIET]"
+        },
+        {
+            "command-line-flag": "-debug",
+            "description": "Display debugging messages.",
+            "id": "debug",
+            "name": "debug",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[DEBUG]"
+        },
+        {
+            "command-line-flag": "-force",
+            "description": "Force overwrite of output files.",
+            "id": "force",
+            "name": "force",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FORCE]"
+        },
+        {
+            "command-line-flag": "-nthreads",
+            "description": "Use this number of threads in multi-threaded applications",
+            "id": "nthreads",
+            "name": "nthreads",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[NTHREADS]"
+        },
+        {
+            "command-line-flag": "-failonwarn",
+            "description": "Terminate program if a warning is produced",
+            "id": "failonwarn",
+            "name": "failonwarn",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FAILONWARN]"
+        },
+        {
+            "command-line-flag": "-help",
+            "description": "Display this information page and exit",
+            "id": "help",
+            "name": "help",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[HELP]"
+        },
+        {
+            "command-line-flag": "-version",
+            "description": "Display version information and exit",
+            "id": "version",
+            "name": "version",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[VERSION]"
+        },
+        {
+            "description": "the image containing the source data. The type of data depends on the algorithm used: \n\t- FACT: the directions file (each triplet of volumes is the X,Y,Z direction of a fibre population). \n\t- iFOD1/2 & SD_Stream: the SH image resulting from CSD. \n\t- Nulldist & SeedTest: any image (will not be used). \n\t- TensorDet / TensorProb: the DWI image.",
+            "id": "source",
+            "name": "source",
+            "optional": false,
+            "type": "File",
+            "value-key": "[SOURCE]"
+        },
+        {
+            "description": "The output file containing the tracks generated.",
+            "id": "tracks",
+            "name": "Tracks generated",
+            "optional": false,
+            "type": "String",
+            "value-key": "[TRACKS]"
+        }
+    ],
+    "output-files": [
+        {
+            "id": "tracks_output",
+            "name": "Tracks output",
+            "description": "The output file containing the tracks generated.",
+            "optional": false,
+            "path-template": "[TRACKS].trk",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii",
+                ".json"
+            ]
+        },
+        {
+            "id": "Seed_location",
+            "name": "Seed location",
+            "description": "Seed location of all successful streamlines",
+            "optional": true,
+            "path-template": "[OUTPUT_SEEDS].txt",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii",
+                ".json"
+            ]
+        }
+    ],
+    "schema-version": "0.5",
+    "suggested-resources": {
+        "cpu-cores": 1,
+        "ram": 2048,
+        "walltime-estimate": 20
+    },
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "image processing",
+            "mri",
+            "dwi",
+            "tractography"
+        ]
+    },
+    "tool-version": "v0.1.0"
+}
