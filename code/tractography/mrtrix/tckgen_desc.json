@@ -1,6 +1,6 @@
 {
     "author": "Darrin Fong",
-    "command-line": "tckgen [ALGORITHM] [SELECT] [STEP_DEFAULT] [STEP_IFOD2] [ANGLE] [MINLENGTH] [MINLENGTH_WITH_ACT] [MAXLENGTH] [CUTOFF_FOD] [CUTOFF_FIXEL] [CUTOFF_TENSOR] [TRIALS] [NOPRECOMPUTED] [STOP] [DOWNSAMPLE] [DOWNSAMPLE_IFOD2] [SEED_IMAGE] [SEED_SPHERE] [SEED_RANDOM_PER_VOXEL] [NUM_PER_VOXEL] [SEED_GRID_PER_VOXEL] [GRID_SIZE] [SEED_REJECTION] [SEED_GMWMI] [SEED_DYNAMIC] [SEEDS] [MAX_ATTEMPTS_PER_SEED] [SEED_CUTOFF] [SEED_UNIDIRECTIONAL] [SEED_DIRECTION] [OUTPUT_SEEDS] [INCLUDE_BIN_MASK] [INCLUDE_SPHERE] [EXCLUDE_BIN_MASK] [EXCLUDE_SPHERE] [MASK_BIN_MASK] [MASK_SPHERE] [ACT] [BACKTRACK] [CROP_AT_GMWMI] [SAMPLES] [POWER] [GRAD] [FSLGRAD] [BVECS] [BVALS] [BVALUE_SCALING] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [SOURCE] [TRACKS]",
+    "command-line": "tckgen [ALGORITHM] [SELECT] [STEP_DEFAULT] [STEP_IFOD2] [ANGLE] [MINLENGTH] [MINLENGTH_WITH_ACT] [MAXLENGTH] [CUTOFF_FOD] [CUTOFF_FIXEL] [CUTOFF_TENSOR] [TRIALS] [NOPRECOMPUTED] [RK4] [STOP] [DOWNSAMPLE] [DOWNSAMPLE_IFOD2] [SEED_IMAGE] [SEED_SPHERE] [SEED_RANDOM_PER_VOXEL] [NUM_PER_VOXEL] [SEED_GRID_PER_VOXEL] [GRID_SIZE] [SEED_REJECTION] [SEED_GMWMI] [SEED_DYNAMIC] [SEEDS] [MAX_ATTEMPTS_PER_SEED] [SEED_CUTOFF] [SEED_UNIDIRECTIONAL] [SEED_DIRECTION] [OUTPUT_SEEDS] [INCLUDE_BIN_MASK] [INCLUDE_SPHERE] [EXCLUDE_BIN_MASK] [EXCLUDE_SPHERE] [MASK_BIN_MASK] [MASK_SPHERE] [ACT] [BACKTRACK] [CROP_AT_GMWMI] [SAMPLES] [POWER] [GRAD] [FSLGRAD] [BVECS] [BVALS] [BVALUE_SCALING] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [SOURCE] [TRACKS]",
     "container-image": {
         "image": "darrinfong/mrtrix3:latest",
         "index": "index.docker.io",
@@ -188,7 +188,7 @@
             "name": "downsample",
             "optional": true,
             "type": "Number",
-            "value-disables": ["downsample_iFOD2"],
+            "disables-inputs": ["downsample_iFOD2"],
             "value-key": "[DOWNSAMPLE]"
         },
         {
@@ -199,7 +199,7 @@
             "optional": true,
             "type": "Number",
             "default-value": -1,
-            "value-disables": ["downsample"],
+            "disables-inputs": ["downsample"],
             "value-key": "[DOWNSAMPLE_IFOD2]"
         },
         {
