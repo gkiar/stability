@@ -1,6 +1,6 @@
 {
     "author": "Darrin Fong",
-    "command-line": "tsckedit [INCLUDE_BIN_MASK] [INCLUDE_SPHERE] [EXCLUDE_BIN_MASK] [EXCLUDE_SPHERE] [MASK_BIN_MASK] [MASK_SPHERE] [MAXLENGTH] [MINLENGTH] [UPSAMPLE] [DOWNSAMPLE] [NUMBER] [SKIP] [MAXWEIGHT] [MINWEIGHT] [INVERSE] [TCK_WEIGHTS_IN] [TCK_WEIGHTS_OUT] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [FAILONWARN] [HELP] [VERSION] [TRACKS_IN] [TRACKS_OUT]",
+    "command-line": "tsckedit [INCLUDE_BIN_MASK] [INCLUDE_SPHERE] [EXCLUDE_BIN_MASK] [EXCLUDE_SPHERE] [MASK_BIN_MASK] [MASK_SPHERE] [MAXLENGTH] [MINLENGTH] [NUMBER] [SKIP] [MAXWEIGHT] [MINWEIGHT] [INVERSE] [ENDS_ONLY] [TCK_WEIGHTS_IN] [TCK_WEIGHTS_OUT] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [TRACKS_IN] [TRACKS_OUT]",
     "container-image": {
         "image": "darrinfong/mrtrix3:latest",
         "index": "index.docker.io",
@@ -93,24 +93,6 @@
             "value-key": "[MINLENGTH]"
         },
         {
-            "command-line-flag": "-upsample",
-            "description": "Increase the density of points along the length of the streamline by some factor (may improve mapping streamlines to ROIs, and/or visualisation)",
-            "id": "upsample",
-            "name": "upsample",
-            "optional": true,
-            "type": "Number",
-            "value-key": "[UPSAMPLE]"
-        },
-        {
-            "command-line-flag": "-downsample",
-            "description": "Decrease the density of points along the length of the streamline by some factor (decreases required storage space)",
-            "id": "downsample",
-            "name": "downsample",
-            "optional": true,
-            "type": "Number",
-            "value-key": "[DOWNSAMPLE]"
-        },
-        {
             "command-line-flag": "-number",
             "description": "Set the desired number of selected streamlines to be propagated to the output file",
             "id": "number",
@@ -158,6 +140,15 @@
             "value-key": "[INVERSE]"
         },
         {
+            "command-line-flag": "-ends_only",
+            "description": "Only test the ends of each streamline against the provided include/exclude ROIs",
+            "id": "ends_only",
+            "name": "Ends only",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[ENDS_ONLY]"
+        },
+        {
             "command-line-flag": "-tck_weights_in",
             "description": "Specify a text scalar file containing the streamline weights",
             "id": "tck_weights_in",
@@ -172,7 +163,7 @@
             "id": "tck_weights_out",
             "name": "tck_weights_out",
             "optional": true,
-            "type": "Flag",
+            "type": "String",
             "value-key": "[TCK_WEIGHTS_OUT]"
         },
         {
@@ -182,7 +173,8 @@
             "name": "info",
             "optional": true,
             "type": "Flag",
-            "value-key": "[INFO]"
+            "value-key": "[INFO]",
+            "disables-inputs": ["quiet", "debug"]
         },
         {
             "command-line-flag": "-quiet",
@@ -191,7 +183,8 @@
             "name": "quiet",
             "optional": true,
             "type": "Flag",
-            "value-key": "[QUIET]"
+            "value-key": "[QUIET]",
+            "disables-inputs": ["info", "debug"]
         },
         {
             "command-line-flag": "-debug",
@@ -200,11 +193,12 @@
             "name": "debug",
             "optional": true,
             "type": "Flag",
-            "value-key": "[DEBUG]"
+            "value-key": "[DEBUG]",
+            "disables-inputs": ["info", "quiet"]
         },
         {
             "command-line-flag": "-force",
-            "description": "Force overwrite of output files.",
+            "description": "Force overwrite of output files. Caution: Using the same file as input and output might cause unexpected behaviour.",
             "id": "force",
             "name": "force",
             "optional": true,
@@ -213,22 +207,13 @@
         },
         {
             "command-line-flag": "-nthreads",
-            "description": "Use this number of threads in multi-threaded applications",
+            "description": "Use this number of threads in multi-threaded applications (set to 0 to disable multi-threading)",
             "id": "nthreads",
             "name": "nthreads",
             "optional": true,
             "integer": true,
             "type": "Number",
             "value-key": "[NTHREADS]"
-        },
-        {
-            "command-line-flag": "-failonwarn",
-            "description": "Terminate program if a warning is produced",
-            "id": "failonwarn",
-            "name": "failonwarn",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[FAILONWARN]"
         },
         {
             "command-line-flag": "-help",

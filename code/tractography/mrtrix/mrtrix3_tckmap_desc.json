@@ -1,6 +1,6 @@
 {
     "author": "Darrin Fong",
-    "command-line": "dwi2mask [TEMPLATE] [VOX_SIZE] [VOX_DIMENSIONS] [DATATYPE] [DEC] [DIXELS] [DIXEL_DIRECTIONS] [TOD] [CONTRAST] [IMAGE] [STAT_VOX] [STAT_TCK] [FWHM_TCK] [MAP_ZERO] [UPSAMPLE] [PRECISE] [ENDS_ONLY] [DUMP] [TCK_WEIGHTS_IN] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [FAILONWARN] [HELP] [VERSION] [TRACKS] [OUTPUT]",
+    "command-line": "dwi2mask [TEMPLATE] [VOX_SIZE] [VOX_DIMENSIONS] [DATATYPE] [DEC] [DIXELS] [DIXEL_DIRECTIONS] [TOD] [CONTRAST] [IMAGE] [VECTOR_FILE] [STAT_VOX] [STAT_TCK] [FWHM_TCK] [MAP_ZERO] [BACKTRACK] [UPSAMPLE] [PRECISE] [ENDS_ONLY] [TCK_WEIGHTS_IN] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [TRACKS] [OUTPUT]",
     "container-image": {
         "image": "darrinfong/mrtrix3:latest",
         "index": "index.docker.io",
@@ -20,7 +20,7 @@
         },
         {
             "command-line-flag": "-vox",
-            "description": "Provide either an isotropic voxel size (in mm).",
+            "description": "Provide an isotropic voxel size (in mm).",
             "id": "vox_size",
             "name": "vox size",
             "optional": true,
@@ -31,7 +31,7 @@
         },
         {
             "command-line-flag": "-vox",
-            "description": "Provide either a comma-separated list of 3 voxel dimensions.",
+            "description": "Provide a comma-separated list of 3 voxel dimensions.",
             "id": "vox_dimensions",
             "name": "vox dimensions",
             "optional": true,
@@ -109,6 +109,15 @@
             "value-key": "[IMAGE]"
         },
         {
+            "command-line-flag": "-vector_file",
+            "description": "Provide the vector data file for generating images with 'vector_file' contrast",
+            "id": "vector_file",
+            "name": "vector file",
+            "optional": true,
+            "type": "File",
+            "value-key": "[VECTOR_FILE]"
+        },
+        {
             "command-line-flag": "-stat_vox",
             "description": "Define the statistic for choosing the final voxel intensities for a given contrast type given the individual values from the tracks passing through each voxel Options are: sum, min, mean, max (default: sum)",
             "id": "stat_vox",
@@ -150,6 +159,15 @@
             "value-key": "[MAP_ZERO]"
         },
         {
+            "command-line-flag": "-backtrack",
+            "description": "When using -stat_tck ends_*, if the streamline endpoint is outside the FoV, backtrack along the streamline trajectory until an appropriate point is found",
+            "id": "backtrack",
+            "name": "backtrack",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[BACKTRACK]"
+        },
+        {
             "command-line-flag": "-upsample",
             "description": "Upsample the tracks by some ratio using Hermite interpolation before mappping (If omitted, an appropriate ratio will be determined automatically)",
             "id": "upsample",
@@ -177,15 +195,6 @@
             "value-key": "[ENDS_ONLY]"
         },
         {
-            "command-line-flag": "-dump",
-            "description": "Dump the scratch buffer contents directly to a .mih / .dat file pair or .mif file, rather than memory-mapping the output file (this is useful if either the image is larger than half the available RAM, or a network file system is in use where writing to a memory-mapped output file performs very poorly)",
-            "id": "dump",
-            "name": "dump",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[DUMP]"
-        },
-        {
             "command-line-flag": "-tck_weights_in",
             "description": "Specify a text scalar file containing the streamline weights",
             "id": "tck_weights_in",
@@ -201,16 +210,18 @@
             "name": "info",
             "optional": true,
             "type": "Flag",
-            "value-key": "[INFO]"
+            "value-key": "[INFO]",
+            "disables-inputs": ["quiet", "debug"]
         },
         {
             "command-line-flag": "-quiet",
-            "description": "Do not display information messages or progress status.",
+            "description": "Do not display information messages or progress status. Alternatively, this can be achieved by setting the MRTRIX_QUIET environment variable to a non-empty string.",
             "id": "quiet",
             "name": "quiet",
             "optional": true,
             "type": "Flag",
-            "value-key": "[QUIET]"
+            "value-key": "[QUIET]",
+            "disables-inputs": ["info", "debug"]
         },
         {
             "command-line-flag": "-debug",
@@ -219,11 +230,12 @@
             "name": "debug",
             "optional": true,
             "type": "Flag",
-            "value-key": "[DEBUG]"
+            "value-key": "[DEBUG]",
+            "disables-inputs": ["info", "quiet"]
         },
         {
             "command-line-flag": "-force",
-            "description": "Force overwrite of output files.",
+            "description": "Force overwrite of output files. Caution: Using the same file as input and output might cause unexpected behaviour.",
             "id": "force",
             "name": "force",
             "optional": true,
@@ -232,22 +244,13 @@
         },
         {
             "command-line-flag": "-nthreads",
-            "description": "Use this number of threads in multi-threaded applications",
+            "description": "Use this number of threads in multi-threaded applications (set to 0 to disable multi-threading)",
             "id": "nthreads",
             "name": "nthreads",
             "optional": true,
             "integer": true,
             "type": "Number",
             "value-key": "[NTHREADS]"
-        },
-        {
-            "command-line-flag": "-failonwarn",
-            "description": "Terminate program if a warning is produced",
-            "id": "failonwarn",
-            "name": "failonwarn",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[FAILONWARN]"
         },
         {
             "command-line-flag": "-help",

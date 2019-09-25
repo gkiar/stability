@@ -11,7 +11,7 @@
     "inputs": [
         {
             "command-line-flag": "-grad",
-            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition. The program will normally attempt to use the encoding stored in the image header. This should be supplied as a 4xN text file with each line is in the format [ X Y Z b ], where [ X Y Z ] describe the direction of the applied gradient, and b gives the b-value in units of s/mm^2.",
+            "description": "Provide the diffusion-weighted gradient scheme used in the acquisition in a text file. This should be supplied as a 4xN text file with each line is in the format [ X Y Z b ], where [ X Y Z ] describe the direction of the applied gradient, and b gives the b-value in units of s/mm^2. If a diffusion gradient scheme is present in the input image header, the data provided with this option will be instead used.",
             "id": "grad",
             "name": "grad",
             "optional": true,
@@ -20,7 +20,7 @@
         },
         {
             "command-line-flag": "-fslgrad",
-            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs/bvals format.",
+            "description": "Provide the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs/bvals format files. If a diffusion gradient scheme is present in the input image header, the data provided with this option will be instead used.",
             "id": "fslgrad",
             "name": "fslgrad",
             "optional": true,
@@ -29,7 +29,7 @@
             "requires-inputs": ["bvecs", "bvals"]
         },
         {
-            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs format.",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs format.",
             "id": "bvecs",
             "name": "bvecs",
             "optional": true,
@@ -38,7 +38,7 @@
             "requires-inputs": ["fslgrad", "bvals"]
         },
         {
-            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvals format.",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvals format.",
             "id": "bvals",
             "name": "bvals",
             "optional": true,
@@ -59,7 +59,7 @@
         },
         {
             "command-line-flag": "-shell",
-            "description": "Specify one or more diffusion-weighted gradient shells to use during processing, as a comma-separated list of the desired approximate b-values. Note that some commands are incompatible with multiple shells, and will throw an error if more than one b-value are provided.",
+            "description": "Specify one or more b-values to use during processing, as a comma-separated list of the desired approximate b-values (b-values are clustered to allow for small deviations). Note that some commands are incompatible with multiple b-values, and will report an error if more than one b-value is provided. \nWARNING: note that, even though the b=0 volumes are never referred to as shells in the literature, they still have to be explicitly included in the list of b-values as provided to the -shell option! Several algorithms which include the b=0 volumes in their computations may otherwise return an undesired result.",
             "id": "shell",
             "name": "Diffusion-weighted gradient shell(s)",
             "optional": true,
@@ -92,7 +92,7 @@
             "id": "mask",
             "name": "mask",
             "optional": true,
-            "type": "Flag",
+            "type": "File",
             "value-key": "[MASK]"
         },
         {
@@ -151,9 +151,7 @@
             "id": "stride",
             "name": "stride",
             "optional": true,
-            "list": true,
-            "integer": true,
-            "type": "Number",
+            "type": "String",
             "value-key": "[STRIDE]"
         },
         {
@@ -163,7 +161,8 @@
             "name": "info",
             "optional": true,
             "type": "Flag",
-            "value-key": "[INFO]"
+            "value-key": "[INFO]",
+            "disables-inputs": ["quiet", "debug"]
         },
         {
             "command-line-flag": "-quiet",
@@ -172,7 +171,8 @@
             "name": "quiet",
             "optional": true,
             "type": "Flag",
-            "value-key": "[QUIET]"
+            "value-key": "[QUIET]",
+            "disables-inputs": ["info", "debug"]
         },
         {
             "command-line-flag": "-debug",
@@ -181,7 +181,8 @@
             "name": "debug",
             "optional": true,
             "type": "Flag",
-            "value-key": "[DEBUG]"
+            "value-key": "[DEBUG]",
+            "disables-inputs": ["info", "quiet"]
         },
         {
             "command-line-flag": "-force",
@@ -201,15 +202,6 @@
             "integer": true,
             "type": "Number",
             "value-key": "[NTHREADS]"
-        },
-        {
-            "command-line-flag": "-failonwarn",
-            "description": "Terminate program if a warning is produced",
-            "id": "failonwarn",
-            "name": "failonwarn",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[FAILONWARN]"
         },
         {
             "command-line-flag": "-help",

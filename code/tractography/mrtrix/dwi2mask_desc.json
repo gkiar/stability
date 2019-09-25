@@ -1,17 +1,27 @@
 {
     "author": "Darrin Fong",
-    "command-line": "dwi2mask [GRAD] [FSLGRAD] [BVECS] [BVALS] [BVALUE_SCALING] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [FAILONWARN] [HELP] [VERSION] [INPUT_DWI] [OUTPUT_MASK]",
+    "command-line": "dwi2mask [CLEAN_SCALE] [GRAD] [FSLGRAD] [BVECS] [BVALS] [BVALUE_SCALING] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [INPUT] [OUTPUT]",
     "container-image": {
         "image": "darrinfong/mrtrix3:latest",
         "index": "index.docker.io",
         "type": "docker"
     },
     "name": "dwi2mask Brain mask generator",
-    "description": "Generates an whole brain mask from a DWI image.All diffusion weighted and b=0 volumes are used to obtain a mask that includes both brain tissue and CSF",
+    "description": "All diffusion weighted and b=0 volumes are used to obtain a mask that includes both brain tissue and CSF. \n\nIn a second step peninsula-like extensions, where the peninsula itself is wider than the bridge connecting it to the mask, are removed. This may help removing artefacts and non-brain parts, e.g. eyes, from the mask.",
     "inputs": [
         {
+            "command-line-flag": "-clean_scale",
+            "description": "The maximum scale used to cut bridges. A certain maximum scale cuts bridges up to a width (in voxels) of 2x the provided scale. Setting this to 0 disables the mask cleaning step. (Default: 2)",
+            "id": "clean_scale",
+            "name": "Clean scale",
+            "optional": true,
+            "type": "Number",
+            "default-value": 2,
+            "value-key": "[CLEAN_SCALE]"
+        },
+        {
             "command-line-flag": "-grad",
-            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition. The program will normally attempt to use the encoding stored in the image header. This should be supplied as a 4xN text file with each line is in the format [ X Y Z b ], where [ X Y Z ] describe the direction of the applied gradient, and b gives the b-value in units of s/mm^2.",
+            "description": "Provide the diffusion-weighted gradient scheme used in the acquisition in a text file. This should be supplied as a 4xN text file with each line is in the format [ X Y Z b ], where [ X Y Z ] describe the direction of the applied gradient, and b gives the b-value in units of s/mm^2. If a diffusion gradient scheme is present in the input image header, the data provided with this option will be instead used.",
             "id": "grad",
             "name": "grad",
             "optional": true,
@@ -20,7 +30,7 @@
         },
         {
             "command-line-flag": "-fslgrad",
-            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs/bvals format.",
+            "description": "Provide the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs/bvals format files. If a diffusion gradient scheme is present in the input image header, the data provided with this option will be instead used.",
             "id": "fslgrad",
             "name": "fslgrad",
             "optional": true,
@@ -29,7 +39,7 @@
             "requires-inputs": ["bvecs", "bvals"]
         },
         {
-            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs format.",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvecs format.",
             "id": "bvecs",
             "name": "bvecs",
             "optional": true,
@@ -38,7 +48,7 @@
             "requires-inputs": ["fslgrad", "bvals"]
         },
         {
-            "description": "specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvals format.",
+            "description": "Specify the diffusion-weighted gradient scheme used in the acquisition in FSL bvals format.",
             "id": "bvals",
             "name": "bvals",
             "optional": true,
@@ -48,13 +58,14 @@
         },
         {
             "command-line-flag": "-bvalue_scaling",
-            "description": "Specifies whether the b-values should be scaled by the square of the corresponding DW gradient norm, as often required for multi-shell or DSI DW acquisition schemes. The default action can also be set in the MRtrix config file, under the BValueScaling entry. Valid choices are yes/no, true/false, 0/1.",
+            "description": "Specifies whether the b-values should be scaled by the square of the corresponding DW gradient norm, as often required for multi-shell or DSI DW acquisition schemes. The default action can also be set in the MRtrix config file, under the BValueScaling entry. Valid choices are yes/no, true/false, 0/1 (default: true).",
             "id": "bvalue_scaling",
             "name": "bvalue_scaling",
             "optional": true,
             "type": "String",
             "value-key": "[BVALUE_SCALING]",
-            "value-choices": ["yes", "no", "true", "false", "0", "1"]
+            "value-choices": ["yes", "no", "true", "false", "0", "1"],
+            "default-value": "true"
         },
         {
             "command-line-flag": "-info",
@@ -63,7 +74,8 @@
             "name": "info",
             "optional": true,
             "type": "Flag",
-            "value-key": "[INFO]"
+            "value-key": "[INFO]",
+            "disables-inputs": ["quiet", "debug"]
         },
         {
             "command-line-flag": "-quiet",
@@ -72,7 +84,8 @@
             "name": "quiet",
             "optional": true,
             "type": "Flag",
-            "value-key": "[QUIET]"
+            "value-key": "[QUIET]",
+            "disables-inputs": ["info", "debug"]
         },
         {
             "command-line-flag": "-debug",
@@ -81,11 +94,12 @@
             "name": "debug",
             "optional": true,
             "type": "Flag",
-            "value-key": "[DEBUG]"
+            "value-key": "[DEBUG]",
+            "disables-inputs": ["info", "quiet"]
         },
         {
             "command-line-flag": "-force",
-            "description": "Force overwrite of output files.",
+            "description": "Force overwrite of output files. Caution: Using the same file as input and output might cause unexpected behaviour.",
             "id": "force",
             "name": "force",
             "optional": true,
@@ -94,22 +108,13 @@
         },
         {
             "command-line-flag": "-nthreads",
-            "description": "Use this number of threads in multi-threaded applications",
+            "description": "Use this number of threads in multi-threaded applications (set to 0 to disable multi-threading)",
             "id": "nthreads",
             "name": "nthreads",
             "optional": true,
             "integer": true,
             "type": "Number",
             "value-key": "[NTHREADS]"
-        },
-        {
-            "command-line-flag": "-failonwarn",
-            "description": "Terminate program if a warning is produced",
-            "id": "failonwarn",
-            "name": "failonwarn",
-            "optional": true,
-            "type": "Flag",
-            "value-key": "[FAILONWARN]"
         },
         {
             "command-line-flag": "-help",
@@ -131,11 +136,11 @@
         },
         {
             "description": "The input DWI image containing volumes that are both diffusion weighted and b=0",
-            "id": "input_dwi",
-            "name": "input_dwi",
+            "id": "input",
+            "name": "input",
             "optional": false,
             "type": "File",
-            "value-key": "[INPUT_DWI]"
+            "value-key": "[INPUT]"
         },
         {
             "description": "The output whole brain mask image",
@@ -143,16 +148,16 @@
             "name": "output_mask",
             "optional": false,
             "type": "String",
-            "value-key": "[OUTPUT_MASK]"
+            "value-key": "[OUTPUT]"
         }
     ],
     "output-files": [
         {
-            "id": "fibers",
-            "name": "Fibers",
-            "description": "the output whole brain mask image",
+            "id": "output_image",
+            "name": "Output mask image",
+            "description": "The output whole brain mask image",
             "optional": false,
-            "path-template": "[OUTPUT_MASK].trk",
+            "path-template": "[OUTPUT].nii",
             "path-template-stripped-extensions": [
                 ".nii.gz",
                 ".nii",
