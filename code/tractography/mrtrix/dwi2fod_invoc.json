@@ -1,0 +1,6 @@
+{
+    "algorithm": "msmt_csd",
+    "dwi": "example_dwi.nii.gz",
+    "odf": "example_odf.nii.gz",
+    "response": "example_response.csv"
+}
