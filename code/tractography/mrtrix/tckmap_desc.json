@@ -1,0 +1,320 @@
+{
+    "author": "Darrin Fong",
+    "command-line": "dwi2mask [TEMPLATE] [VOX_SIZE] [VOX_DIMENSIONS] [DATATYPE] [DEC] [DIXELS] [DIXEL_DIRECTIONS] [TOD] [CONTRAST] [IMAGE] [VECTOR_FILE] [STAT_VOX] [STAT_TCK] [FWHM_TCK] [MAP_ZERO] [BACKTRACK] [UPSAMPLE] [PRECISE] [ENDS_ONLY] [TCK_WEIGHTS_IN] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [TRACKS] [OUTPUT]",
+    "container-image": {
+        "image": "darrinfong/mrtrix3:latest",
+        "index": "index.docker.io",
+        "type": "docker"
+    },
+    "name": "dwi2mask Brain mask generator",
+    "description": "Generates an whole brain mask from a DWI image.All diffusion weighted and b=0 volumes are used to obtain a mask that includes both brain tissue and CSF",
+    "inputs": [
+        {
+            "command-line-flag": "-template",
+            "description": "An image file to be used as a template for the output (the output image will have the same transform and field of view).",
+            "id": "template",
+            "name": "template",
+            "optional": true,
+            "type": "File",
+            "value-key": "[TEMPLATE]"
+        },
+        {
+            "command-line-flag": "-vox",
+            "description": "Provide an isotropic voxel size (in mm).",
+            "id": "vox_size",
+            "name": "vox size",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "disables-inputs": ["vox_dimensions"],
+            "value-key": "[VOX_SIZE]"
+        },
+        {
+            "command-line-flag": "-vox",
+            "description": "Provide a comma-separated list of 3 voxel dimensions.",
+            "id": "vox_dimensions",
+            "name": "vox dimensions",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "disables-inputs": ["vox_size"],
+            "value-key": "[VOX_DIMENSIONS]"
+        },
+        {
+            "command-line-flag": "-datatype",
+            "description": "Specify output image data type.",
+            "id": "datatype",
+            "name": "datatype",
+            "optional": true,
+            "type": "String",
+            "value-key": "[DATATYPE]"
+        },
+        {
+            "command-line-flag": "-dec",
+            "description": "Perform track mapping in directionally-encoded colour (DEC) space",
+            "id": "dec",
+            "name": "dec",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[DEC]"
+        },
+        {
+            "command-line-flag": "-dixel",
+            "description": "Map streamlines to dixels within each voxel; requires a number of dixels (references an internal direction set).",
+            "id": "dixels",
+            "name": "A number of dixels",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "disables-inputs": ["dixel_directions"],
+            "value-key": "[DIXELS]"
+        },
+        {
+            "command-line-flag": "-dixel",
+            "description": "Map streamlines to dixels within each voxel; requires a path to a text file containing a set of directions stored as aximuth/elevation pairs",
+            "id": "dixel_directions",
+            "name": "dixel directions file",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["dixels"],
+            "value-key": "[DIXEL_DIRECTIONS]"
+        },
+        {
+            "command-line-flag": "-tod",
+            "description": "Generate a Track Orientation Distribution (TOD) in each voxel; need to specify the maximum spherical harmonic degree lmax to use when generating Apodised Point Spread Functions",
+            "id": "tod",
+            "name": "tod",
+            "optional": true,
+            "type": "Number",
+            "value-key": "[TOD]"
+        },
+        {
+            "command-line-flag": "-contrast",
+            "description": "Define the desired form of contrast for the output image Options are: tdi, length, invlength, scalar_map, scalar_map_count, fod_amp, curvature (default: tdi)",
+            "id": "contrast",
+            "name": "contrast",
+            "optional": true,
+            "type": "String",
+            "value-choices": ["tdi", "length", "invlength", "scalar_map", "scalar_map_count", "fod_amp", "curvature"],
+            "default-value": "tdi",
+            "value-key": "[CONTRAST]"
+        },
+        {
+            "command-line-flag": "-image",
+            "description": "Provide the scalar image map for generating images with 'scalar_map' / 'scalar_map_count' contrast, or the spherical harmonics image for 'fod_amp' contrast",
+            "id": "image",
+            "name": "image",
+            "optional": true,
+            "type": "File",
+            "value-key": "[IMAGE]"
+        },
+        {
+            "command-line-flag": "-vector_file",
+            "description": "Provide the vector data file for generating images with 'vector_file' contrast",
+            "id": "vector_file",
+            "name": "vector file",
+            "optional": true,
+            "type": "File",
+            "value-key": "[VECTOR_FILE]"
+        },
+        {
+            "command-line-flag": "-stat_vox",
+            "description": "Define the statistic for choosing the final voxel intensities for a given contrast type given the individual values from the tracks passing through each voxel Options are: sum, min, mean, max (default: sum)",
+            "id": "stat_vox",
+            "name": "stat_vox",
+            "optional": true,
+            "type": "String",
+            "value-choices": ["sum", "min", "mean", "max"],
+            "default-value": "sum",
+            "value-key": "[STAT_VOX]"
+        },
+        {
+            "command-line-flag": "-stat_tck",
+            "description": "Define the statistic for choosing the contribution to be made by each streamline as a function of the samples taken along their lengths Only has an effect for 'scalar_map', 'fod_amp' and 'curvature' contrast types Options are: sum, min, mean, max, median, mean_nonzero, gaussian, ends_min, ends_mean, ends_max, ends_prod (default: mean)",
+            "id": "stat_tck",
+            "name": "stat_tck",
+            "optional": true,
+            "type": "String",
+            "value-choices": ["sum", "min", "mean", "max", "median", "mean_nonzero", "gaussian", "ends_min", "ends_mean", "ends_max", "ends_prod"],
+            "default-value": "mean",
+            "value-key": "[STAT_TCK]"
+        },
+        {
+            "command-line-flag": "-fwhm_tck",
+            "description": "When using gaussian-smoothed per-track statistic, specify the desired full-width half-maximum of the Gaussian smoothing kernel (in mm)",
+            "id": "fwhm_tck",
+            "name": "fwhm_tck",
+            "optional": true,
+            "integer":true,
+            "type": "Number",
+            "value-key": "[FWHM_TCK]"
+        },
+        {
+            "command-line-flag": "-map_zero",
+            "description": "If a streamline has zero contribution based on the contrast & statistic, typically it is not mapped; use this option to still contribute to the map even if this is the case (these non-contributing voxels can then influence the mean value in each voxel of the map)",
+            "id": "map_zero",
+            "name": "map_zero",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[MAP_ZERO]"
+        },
+        {
+            "command-line-flag": "-backtrack",
+            "description": "When using -stat_tck ends_*, if the streamline endpoint is outside the FoV, backtrack along the streamline trajectory until an appropriate point is found",
+            "id": "backtrack",
+            "name": "backtrack",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[BACKTRACK]"
+        },
+        {
+            "command-line-flag": "-upsample",
+            "description": "Upsample the tracks by some ratio using Hermite interpolation before mappping (If omitted, an appropriate ratio will be determined automatically)",
+            "id": "upsample",
+            "name": "upsample",
+            "optional": true,
+            "type": "Number",
+            "value-key": "[UPSAMPLE]"
+        },
+        {
+            "command-line-flag": "-precise",
+            "description": "Use a more precise streamline mapping strategy, that accurately quantifies the length through each voxel (these lengths are then taken into account during TWI calculation)",
+            "id": "precise",
+            "name": "precise",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[PRECISE]"
+        },
+        {
+            "command-line-flag": "-ends_only",
+            "description": "Only map the streamline endpoints to the image",
+            "id": "ends_only",
+            "name": "ends_only",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[ENDS_ONLY]"
+        },
+        {
+            "command-line-flag": "-tck_weights_in",
+            "description": "Specify a text scalar file containing the streamline weights",
+            "id": "tck_weights_in",
+            "name": "tck_weights_in",
+            "optional": true,
+            "type": "File",
+            "value-key": "[TCK_WEIGHTS_IN]"
+        },
+        {
+            "command-line-flag": "-info",
+            "description": "Display information messages.",
+            "id": "info",
+            "name": "info",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[INFO]",
+            "disables-inputs": ["quiet", "debug"]
+        },
+        {
+            "command-line-flag": "-quiet",
+            "description": "Do not display information messages or progress status. Alternatively, this can be achieved by setting the MRTRIX_QUIET environment variable to a non-empty string.",
+            "id": "quiet",
+            "name": "quiet",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[QUIET]",
+            "disables-inputs": ["info", "debug"]
+        },
+        {
+            "command-line-flag": "-debug",
+            "description": "Display debugging messages.",
+            "id": "debug",
+            "name": "debug",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[DEBUG]",
+            "disables-inputs": ["info", "quiet"]
+        },
+        {
+            "command-line-flag": "-force",
+            "description": "Force overwrite of output files. Caution: Using the same file as input and output might cause unexpected behaviour.",
+            "id": "force",
+            "name": "force",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FORCE]"
+        },
+        {
+            "command-line-flag": "-nthreads",
+            "description": "Use this number of threads in multi-threaded applications (set to 0 to disable multi-threading)",
+            "id": "nthreads",
+            "name": "nthreads",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[NTHREADS]"
+        },
+        {
+            "command-line-flag": "-help",
+            "description": "Display this information page and exit",
+            "id": "help",
+            "name": "help",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[HELP]"
+        },
+        {
+            "command-line-flag": "-version",
+            "description": "Display version information and exit",
+            "id": "version",
+            "name": "version",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[VERSION]"
+        },
+        {
+            "description": "The input track file",
+            "id": "tracks",
+            "name": "tracks",
+            "optional": false,
+            "type": "File",
+            "value-key": "[TRACKS]"
+        },
+        {
+            "description": "The output track-weighted image",
+            "id": "output",
+            "name": "output",
+            "optional": false,
+            "type": "String",
+            "value-key": "[OUTPUT]"
+        }
+    ],
+    "output-files": [
+        {
+            "id": "track_weighted_image",
+            "name": "Output track-weighted image",
+            "description": "The output track-weighted image",
+            "optional": false,
+            "path-template": "[OUTPUT].dwi",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii",
+                ".json"
+            ]
+        }
+    ],
+    "schema-version": "0.5",
+    "suggested-resources": {
+        "cpu-cores": 1,
+        "ram": 2048,
+        "walltime-estimate": 20
+    },
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "image processing",
+            "mri",
+            "dwi",
+            "tractography"
+        ]
+    },
+    "tool-version": "v0.1.0"
+}
