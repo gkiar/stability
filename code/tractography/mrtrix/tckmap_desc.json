@@ -1,13 +1,13 @@
 {
     "author": "Darrin Fong",
-    "command-line": "dwi2mask [TEMPLATE] [VOX_SIZE] [VOX_DIMENSIONS] [DATATYPE] [DEC] [DIXELS] [DIXEL_DIRECTIONS] [TOD] [CONTRAST] [IMAGE] [VECTOR_FILE] [STAT_VOX] [STAT_TCK] [FWHM_TCK] [MAP_ZERO] [BACKTRACK] [UPSAMPLE] [PRECISE] [ENDS_ONLY] [TCK_WEIGHTS_IN] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [TRACKS] [OUTPUT]",
+    "command-line": "tckmap [TEMPLATE] [VOX_SIZE] [VOX_DIMENSIONS] [DATATYPE] [DEC] [DIXELS] [DIXEL_DIRECTIONS] [TOD] [CONTRAST] [IMAGE] [VECTOR_FILE] [STAT_VOX] [STAT_TCK] [FWHM_TCK] [MAP_ZERO] [BACKTRACK] [UPSAMPLE] [PRECISE] [ENDS_ONLY] [TCK_WEIGHTS_IN] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [TRACKS] [OUTPUT]",
     "container-image": {
         "image": "darrinfong/mrtrix3:latest",
         "index": "index.docker.io",
         "type": "docker"
     },
-    "name": "dwi2mask Brain mask generator",
-    "description": "Generates an whole brain mask from a DWI image.All diffusion weighted and b=0 volumes are used to obtain a mask that includes both brain tissue and CSF",
+    "name": "tckmap",
+    "description": "Use track data as a form of contrast for producing a high-resolution image.",
     "inputs": [
         {
             "command-line-flag": "-template",
@@ -293,11 +293,11 @@
             "name": "Output track-weighted image",
             "description": "The output track-weighted image",
             "optional": false,
-            "path-template": "[OUTPUT].dwi",
+            "path-template": "[OUTPUT].mif",
             "path-template-stripped-extensions": [
                 ".nii.gz",
                 ".nii",
-                ".json"
+                ".mif"
             ]
         }
     ],

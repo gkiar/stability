@@ -1,6 +1,6 @@
 {
     "author": "Darrin Fong",
-    "command-line": "dwi2fod [GRAD] [FSLGRAD] [BVECS] [BVALS] [BVALUE_SCALING] [SHELL] [DIRECTIONS] [LMAX] [MASK] [FILTER] [NEG_LAMBDA] [NORM_LAMBDA] [THRESHOLD] [NITER] [STRIDE] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [FAILONWARN] [HELP] [VERSION] [ALGORITHM] [DWI] [RESPONSE] [ODF]",
+    "command-line": "dwi2fod [GRAD] [FSLGRAD] [BVECS] [BVALS] [BVALUE_SCALING] [SHELL] [DIRECTIONS] [LMAX] [MASK] [FILTER] [NEG_LAMBDA] [NORM_LAMBDA] [THRESHOLD] [NITER] [STRIDE] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [ALGORITHM] [DWI] [RESPONSE] [ODF]",
     "container-image": {
         "image": "darrinfong/mrtrix3:latest",
         "index": "index.docker.io",
@@ -241,7 +241,7 @@
         {
             "description": "A text file containing the diffusion-weighted signal response function coefficients for a single fibre population",
             "id": "response",
-            "name": "response output",
+            "name": "input tissue response",
             "optional": false,
             "type": "File",
             "value-key": "[RESPONSE]"
@@ -251,25 +251,16 @@
             "id": "odf",
             "name": "odf images",
             "optional": false,
-            "type": "File",
+            "type": "String",
             "value-key": "[ODF]"
         }
     ],
     "output-files": [
         {
-            "id": "response_output",
-            "name": "response output",
-            "optional": false,
-            "path-template": "[RESPONSE].txt",
-            "path-template-stripped-extensions": [
-                ".txt"
-            ]
-        },
-        {
             "id": "odf_output",
             "name": "Spherical harmonics coefficients image output",
             "optional": true,
-            "path-template": "[ODF].nii",
+            "path-template": "[ODF].nii.gz",
             "path-template-stripped-extensions": [
                 ".nii.gz",
                 ".nii"

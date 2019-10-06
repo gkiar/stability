@@ -607,11 +607,11 @@
             "name": "Tracks output",
             "description": "The output file containing the tracks generated.",
             "optional": false,
-            "path-template": "[TRACKS].trk",
+            "path-template": "[TRACKS].tck",
             "path-template-stripped-extensions": [
                 ".nii.gz",
                 ".nii",
-                ".json"
+                ".tck"
             ]
         },
         {
@@ -621,9 +621,7 @@
             "optional": true,
             "path-template": "[OUTPUT_SEEDS].txt",
             "path-template-stripped-extensions": [
-                ".nii.gz",
-                ".nii",
-                ".json"
+                ".txt"
             ]
         }
     ],

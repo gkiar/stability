@@ -1,6 +1,6 @@
 {
     "author": "Darrin Fong",
-    "command-line": "tsckedit [INCLUDE_BIN_MASK] [INCLUDE_SPHERE] [EXCLUDE_BIN_MASK] [EXCLUDE_SPHERE] [MASK_BIN_MASK] [MASK_SPHERE] [MAXLENGTH] [MINLENGTH] [NUMBER] [SKIP] [MAXWEIGHT] [MINWEIGHT] [INVERSE] [ENDS_ONLY] [TCK_WEIGHTS_IN] [TCK_WEIGHTS_OUT] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [TRACKS_IN] [TRACKS_OUT]",
+    "command-line": "tckedit [INCLUDE_BIN_MASK] [INCLUDE_SPHERE] [EXCLUDE_BIN_MASK] [EXCLUDE_SPHERE] [MASK_BIN_MASK] [MASK_SPHERE] [MAXLENGTH] [MINLENGTH] [NUMBER] [SKIP] [MAXWEIGHT] [MINWEIGHT] [INVERSE] [ENDS_ONLY] [TCK_WEIGHTS_IN] [TCK_WEIGHTS_OUT] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [TRACKS_IN] [TRACKS_OUT]",
     "container-image": {
         "image": "darrinfong/mrtrix3:latest",
         "index": "index.docker.io",
@@ -257,11 +257,11 @@
             "name": "Output track file",
             "description": "The output track file",
             "optional": false,
-            "path-template": "[TRACKS_OUT].trk",
+            "path-template": "[TRACKS_OUT].tck",
             "path-template-stripped-extensions": [
                 ".nii.gz",
                 ".nii",
-                ".json"
+                ".tck"
             ]
         },
         {
@@ -271,9 +271,7 @@
             "optional": true,
             "path-template": "[TCK_WEIGHTS_OUT].txt",
             "path-template-stripped-extensions": [
-                ".nii.gz",
-                ".nii",
-                ".json"
+                ".txt"
             ]
         }
     ],

@@ -157,11 +157,10 @@
             "name": "Output mask image",
             "description": "The output whole brain mask image",
             "optional": false,
-            "path-template": "[OUTPUT].nii",
+            "path-template": "[OUTPUT].nii.gz",
             "path-template-stripped-extensions": [
                 ".nii.gz",
-                ".nii",
-                ".json"
+                ".nii"
             ]
         }
     ],
