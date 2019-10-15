@@ -1,0 +1,132 @@
+{
+    "author": "Édouard Théroux",
+    "command-line": "tck2connectome [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [INPUT_TRACKS] [INPUT_NODES] [OUTPUT_CONNECTOME]",
+    "container-image": {
+        "image": "darrinfong/mrtrix3:latest",
+        "index": "index.docker.io",
+        "type": "docker"
+    },
+    "name": "tck2connectome Connectome generator",
+    "description": "Generate a connectome matrix from a streamlines file and a node parcellation image",
+    "inputs": [
+        {
+            "command-line-flag": "-info",
+            "description": "Display information messages.",
+            "id": "info",
+            "name": "info",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[INFO]",
+            "disables-inputs": ["quiet", "debug"]
+        },
+        {
+            "command-line-flag": "-quiet",
+            "description": "Do not display information messages or progress status.",
+            "id": "quiet",
+            "name": "quiet",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[QUIET]",
+            "disables-inputs": ["info", "debug"]
+        },
+        {
+            "command-line-flag": "-debug",
+            "description": "Display debugging messages.",
+            "id": "debug",
+            "name": "debug",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[DEBUG]",
+            "disables-inputs": ["info", "quiet"]
+        },
+        {
+            "command-line-flag": "-force",
+            "description": "Force overwrite of output files. Caution: Using the same file as input and output might cause unexpected behaviour.",
+            "id": "force",
+            "name": "force",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FORCE]"
+        },
+        {
+            "command-line-flag": "-nthreads",
+            "description": "Use this number of threads in multi-threaded applications (set to 0 to disable multi-threading)",
+            "id": "nthreads",
+            "name": "nthreads",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[NTHREADS]"
+        },
+        {
+            "command-line-flag": "-help",
+            "description": "Display this information page and exit",
+            "id": "help",
+            "name": "help",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[HELP]"
+        },
+        {
+            "command-line-flag": "-version",
+            "description": "Display version information and exit",
+            "id": "version",
+            "name": "version",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[VERSION]"
+        },
+        {
+            "description": "The input track file",
+            "id": "input_tracks",
+            "name": "input_tracks",
+            "optional": false,
+            "type": "File",
+            "value-key": "[INPUT_TRACKS]"
+        },
+        {
+            "description": "The input node parcellation image",
+            "id": "input_nodes",
+            "name": "input_nodes",
+            "optional": false,
+            "type": "File",
+            "value-key": "[INPUT_NODES]"
+        },
+        {
+            "description": "The output .csv file containing edge weights",
+            "id": "output_connectome",
+            "name": "output_connectome",
+            "optional": false,
+            "type": "String",
+            "value-key": "[OUTPUT_CONNECTOME]"
+        }
+    ],
+    "output-files": [
+        {
+            "id": "output_csv",
+            "name": "Output connectome csv file",
+            "description": "The connectome file output",
+            "optional": false,
+            "path-template": "[OUTPUT_CONNECTOME].csv",
+            "path-template-stripped-extensions": [
+                ".csv"
+            ]
+        }
+    ],
+    "schema-version": "0.5",
+    "suggested-resources": {
+        "cpu-cores": 1,
+        "ram": 2048,
+        "walltime-estimate": 20
+    },
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "image processing",
+            "mri",
+            "dwi",
+            "tractography"
+        ]
+    },
+    "tool-version": "v0.1.0"
+}
