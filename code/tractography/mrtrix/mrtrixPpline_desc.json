@@ -1,0 +1,86 @@
+{
+    "author": "Édouard Théroux",
+    "command-line": "python mrtrixPpline.py [BVECS] [BVAL] [INPUT] [OUTPUTDIR] [MASK] [RESPONSE]",
+    "name": "Mrtrix Connectome Pipeline",
+    "description": "Generate a connectome matrix from an MRI input image. Creates a mask and response function estimation text file if none are given",
+    "inputs": [
+        {
+            "command-line-flag": "-wm",
+            "description": "Mask image used during FOD image creation and tractography",
+            "id": "mask",
+            "name": "mask",
+            "optional": true,
+            "type": "File",
+            "value-key": "[MASK]"
+        },
+        {
+            "command-line-flag": "-r",
+            "description": "Response function estimation text file used during tractography",
+            "id": "response",
+            "name": "response",
+            "optional": true,
+            "type": "File",
+            "value-key": "[RESPONSE]"
+        },
+        {
+            "description": "The b-vector text file that goes with the input MRI file",
+            "id": "bvecs",
+            "name": "bvecs",
+            "optional": false,
+            "type": "File",
+            "value-key": "[BVECS]"
+        },
+        {
+            "description": "The b-value text file that goes with the input MRI file",
+            "id": "bval",
+            "name": "bval",
+            "optional": false,
+            "type": "File",
+            "value-key": "[BVAL]"
+        },
+        {
+            "description": "The input MRI image",
+            "id": "input",
+            "name": "input",
+            "optional": false,
+            "type": "File",
+            "value-key": "[INPUT]"
+        },
+        {
+            "description": "The directory where all output files are created",
+            "id": "output_directory",
+            "name": "output_directory",
+            "optional": false,
+            "type": "String",
+            "value-key": "[OUTPUTDIR]"
+        }
+    ],
+    "output-files": [
+        {
+            "id": "output_csv",
+            "name": "Output connectome csv file",
+            "description": "The connectome file output",
+            "optional": false,
+            "path-template": "[OUTPUTDIR]_output_connectome.csv",
+            "path-template-stripped-extensions": [
+                ".csv"
+            ]
+        }
+    ],
+    "schema-version": "0.5",
+    "suggested-resources": {
+        "cpu-cores": 1,
+        "ram": 2048,
+        "walltime-estimate": 20
+    },
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "image processing",
+            "mri",
+            "dwi",
+            "tractography"
+        ]
+    },
+    "tool-version": "v0.1.0"
+}
