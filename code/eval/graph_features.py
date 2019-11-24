@@ -37,7 +37,8 @@ def compute_summaries(graphs):
              "avplength": nxa.average_shortest_path_length,
              "weight": lambda g: nxf.get_edge_attributes(g, 'weight').values(),
              "ccoeff": lambda g: nxa.clustering(g, weight='weight').values(),
-             "betweenness": lambda g: nxa.betweenness_centrality(g, weight='weight').values(),
+             "betweenness": lambda g:
+                 nxa.betweenness_centrality(g, weight='weight').values(),
              "plength": lambda g: [_
                                    for t in nxa.shortest_path_length(g)
                                    for _ in t[1].values()
