@@ -10,19 +10,19 @@ import os.path as op
 
 def gen_centroids(parcellation):
     template = nib.load(parcellation)
-    im = template.get_data()
+    bn = op.splitext(op.splitext(parcellation)[0])[0]
 
+    im = template.get_data()
     com = []
     for roi in np.arange(1, 84):
         com += [center_of_mass((im > 0).astype(int), im, roi)]
     com = np.asarray(com)
+    np.savetxt(bn + '_centroids.mat', com)
+
+    dist = cdist(com, com, 'euclidean')
+    np.savetxt(bn + '_distances.mat', dist)
 
     im2 = np.zeros_like(im)
-    t = cdist(com, com, 'euclidean')
-
-    bn = op.splitext(op.splitext(parcellation)[0])[0]
-    np.savetxt(bn + '_centroids.txt', t)
-
     for _, (x, y, z) in enumerate(com.astype(int)):
         slices = (slice(x-2, x+2), slice(y-2, y+2), slice(z-2, z+2))
         im2[slices] = _ + 1
@@ -36,8 +36,8 @@ def main():
     parser.add_argument("parcellation", action="store",
                         help="Niftii file of the parcellation to generate "
                              "centroids for. The output will be in the same "
-                             "location with the _centroids.txt and "
-                             "_centroids.nii.gz suffixes.")
+                             "location with the _centroids.mat, "
+                             "_centroids.nii.gz, and _distances.mat suffixes.")
     results = parser.parse_args()
     gen_centroids(results.parcellation)
 
