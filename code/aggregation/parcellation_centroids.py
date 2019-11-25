@@ -13,8 +13,11 @@ def gen_centroids(parcellation):
     bn = op.splitext(op.splitext(parcellation)[0])[0]
 
     im = template.get_data()
+    rois = np.sort(np.unique(im))
+    rois = rois[rois != 0]
+
     com = []
-    for roi in np.arange(1, 84):
+    for roi in rois:
         com += [center_of_mass((im > 0).astype(int), im, roi)]
     com = np.asarray(com)
     np.savetxt(bn + '_centroids.mat', com)
