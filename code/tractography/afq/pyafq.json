@@ -43,6 +43,13 @@
     ],
     "inputs": [
     {
+        "id": "config_file",
+        "name": "Configuration file",
+        "type": "String",
+        "value-key": "[CONFIG_FILE]",
+        "optional": false
+    },
+    {
         "id": "dmriprep_path",
         "name": "dmriprep path",
         "type": "String",
@@ -428,10 +435,12 @@
     ],
     "output-files": [
     {
-        "id": "config_file",
+        "id": "config_file_output",
         "name": "Configuration file",
         "value-key": "[CONFIG_FILE]",
-        "path-template": "config.toml",
+        "path-template": "[CONFIG_FILE].toml",
+        "path-template-stripped-extensions": [".toml"],
+        "optional": false,
         "file-template": [
             "[files]",
             "dmriprep_path = '[DMRIPREP_PATH]'",
