@@ -13,7 +13,7 @@
         "id": "bundles_group",
         "name": "Bundles Group",
         "description": "Parameters related to bundles of interest.",
-        "members": ["bundles", "seg_algo", "scalars_model", "scalars"]
+        "members": ["bundles", "bundle_seg_algo", "scalars_model", "scalars"]
     },
     {
         "id": "tracking_group",
@@ -22,6 +22,23 @@
         "members": ["directions", "max_angle", "sphere", "seed_mask", "n_seeds",
                     "random_seeds", "stop_mask", "stop_threshold", "step_size",
                     "min_length", "max_length", "odf_model", "wm_labels"]
+    },
+    {
+        "id": "segmentation_group",
+        "name": "Segmentation Group",
+        "description": "Parameters related to segmentation.",
+        "members": ["nb_points", "segmentation_seg_algo", "progressive",
+                    "greater_than", "rm_small_clusters", "model_clust_thr",
+                    "reduction_thr", "refine", "pruning_thr", "b0_threshold",
+                    "prob_threshold", "rng", "segmentation_return_idx",
+                    "filter_by_endpoints", "dist_to_aal"]
+    },
+    {
+        "id": "cleaning_group",
+        "name": "Cleaning Group",
+        "description": "Parameters related to cleaning.",
+        "members": ["n_points", "clean_rounds", "distance_threshold",
+                    "length_threshold", "min_sl", "stat", "cleaning_return_idx"]
     }
     ],
     "inputs": [
@@ -47,10 +64,10 @@
         "optional": true
     },
     {
-        "id": "seg_algo",
-        "name": "segmentation algorithm",
+        "id": "bundles_seg_algo",
+        "name": "bubndles seg algo",
         "type": "String",
-        "value-key": "[SEG_ALGO]",
+        "value-key": "[BUNDLES_SEG_ALGO]",
         "value-choices": ["AFQ"],
         "default-value": "AFQ",
         "optional": true
@@ -199,6 +216,207 @@
         "optional": true
     },
     {
+        "id": "nb_points",
+        "name": "nb points",
+        "type": "String",
+        "value-key": "[NB_POINTS]",
+        "value-choices": ["false", "true"],
+        "default-value": "false",
+        "optional": true
+    },
+    {
+        "id": "segmentation_seg_algo",
+        "name": "segmentation seg algo",
+        "type": "String",
+        "value-key": "[SEGMENTATION_SEG_ALGO]",
+        "value-choices": ["AFQ"],
+        "default-value": "AFQ",
+        "optional": true
+    },
+    {
+        "id": "progressive",
+        "name": "progressive",
+        "type": "String",
+        "value-key": "[PROGRESSIVE]",
+        "value-choices": ["false", "true"],
+        "default-value": "true",
+        "optional": true
+    },
+    {
+        "id": "greater_than",
+        "name": "greater than",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[GREATER_THAN]",
+        "default-value": 50,
+        "optional": true
+    },
+    {
+        "id": "rm_small_clusters",
+        "name": "rm small clusters",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[RM_SMALL_CLUSTERS]",
+        "default-value": 50,
+        "optional": true
+    },
+    {
+        "id": "model_clust_thr",
+        "name": "model clust thr",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[MODEL_CLUST_THR]",
+        "default-value": 40,
+        "optional": true
+    },
+    {
+        "id": "reduction_thr",
+        "name": "reduction thr",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[REDUCTION_THR]",
+        "default-value": 40,
+        "optional": true
+    },
+    {
+        "id": "refine",
+        "name": "refine",
+        "type": "String",
+        "value-key": "[REFINE]",
+        "value-choices": ["false", "true"],
+        "default-value": "false",
+        "optional": true
+    },
+    {
+        "id": "prune_thr",
+        "name": "prune thr",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[PRUNE_THR]",
+        "default-value": 6,
+        "optional": true
+    },
+    {
+        "id": "b0_threshold",
+        "name": "b0 threshold",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[B0_THRESHOLD]",
+        "default-value": 0,
+        "optional": true
+    },
+    {
+        "id": "prob_threshold",
+        "name": "prob threshold",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[PROB_THRESHOLD]",
+        "default-value": 0,
+        "optional": true
+    },
+    {
+        "id": "rng",
+        "name": "rng",
+        "type": "String",
+        "value-key": "[RNG]",
+        "default-value": "None",
+        "optional": true
+    },
+    {
+        "id": "segmentation_return_idx",
+        "name": "segmentation return idx",
+        "type": "String",
+        "value-key": "[SEGMENTATION_RETURN_IDX]",
+        "value-choices": ["false", "true"],
+        "default-value": "false",
+        "optional": true
+    },
+    {
+        "id": "filter_by_endpoints",
+        "name": "filter by endpoints",
+        "type": "String",
+        "value-key": "[FILTER_BY_ENDPOINTS]",
+        "value-choices": ["false", "true"],
+        "default-value": "true",
+        "optional": true
+    },
+    {
+        "id": "dist_to_aal",
+        "name": "dist to aal",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[DIST_TO_AAL]",
+        "default-value": 4,
+        "optional": true
+    },
+    {
+        "id": "n_points",
+        "name": "n points",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[N_POINTS]",
+        "minimum": 1,
+        "default-value": 100,
+        "optional": true
+    },
+    {
+        "id": "clean_rounds",
+        "name": "clean rounds",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[CLEAN_ROUNDS]",
+        "minimum": 1,
+        "default-value": 5,
+        "optional": true
+    },
+    {
+        "id": "distance_threshold",
+        "name": "distance threshold",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[DISTANCE_THRESHOLD]",
+        "minimum": 1,
+        "default-value": 5,
+        "optional": true
+    },
+    {
+        "id": "length_threshold",
+        "name": "length threshold",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[LENGTH_THRESHOLD]",
+        "minimum": 1,
+        "default-value": 4,
+        "optional": true
+    },
+    {
+        "id": "min_sl",
+        "name": "min sl",
+        "type": "Number",
+        "integer": true,
+        "value-key": "[MIN_SL]",
+        "default-value": 20,
+        "optional": true
+    },
+    {
+        "id": "stat",
+        "name": "stat",
+        "type": "String",
+        "value-key": "[STAT]",
+        "value-choices": ["mean", "median"],
+        "default-value": "mean",
+        "optional": true
+    },
+    {
+        "id": "cleaning_return_idx",
+        "name": "cleaning return idx",
+        "type": "String",
+        "value-key": "[CLEANING_RETURN_IDX]",
+        "value-choices": ["false", "true"],
+        "default-value": "false",
+        "optional": true
+    },
+    {
         "id": "dask_it",
         "name": "dask it",
         "type": "String",
@@ -220,7 +438,7 @@
             "",
             "[bundles]",
             "bundles = ['[BUNDLES]']",
-            "seg_algo = '[SEG_ALGO]'",
+            "seg_algo = '[BUNDLES_SEG_ALGO]'",
             "scalars_model = '[SCALARS_MODEL]'",
             "scalars = ['[SCALARS]']",
             "",
@@ -240,30 +458,30 @@
             "wm_labels = [[WM_LABELS]]",
             "",
             "[segmentation]",
-            "nb_points = false",
-            "seg_algo = 'AFQ'",
-            "progressive = true",
-            "greater_than = 50",
-            "rm_small_clusters = 50",
-            "model_clust_thr = 40",
-            "reduction_thr = 40",
-            "refine = false",
-            "pruning_thr = 6",
-            "b0_threshold = 0",
-            "prob_threshold = 0",
-            "rng = None",
-            "return_idx = false",
-            "filter_by_endpoints = true",
-            "dist_to_aal = 4",
+            "nb_points = [NB_POINTS]",
+            "seg_algo = '[SEGMENTATION_SEG_ALGO]'",
+            "progressive = [PROGRESSIVE]",
+            "greater_than = [GREATER_THAN]",
+            "rm_small_clusters = [RM_SMALL_CLUSTERS]",
+            "model_clust_thr = [MODEL_CLUST_THR]",
+            "reduction_thr = [REDUCTION_THR]",
+            "refine = [REFINE]",
+            "pruning_thr = [PRUNING_THR]",
+            "b0_threshold = [B0_THRESHOLD]",
+            "prob_threshold = [PROB_THRESHOLD]",
+            "rng = [RNG]",
+            "return_idx = [SEGMENTATION_RETURN_IDX]",
+            "filter_by_endpoints = [FILTER_BY_ENDPOINTS]",
+            "dist_to_aal = [DIST_TO_AAL]",
             "",
             "[cleaning]",
-            "n_points = 100",
-            "clean_rounds = 5",
-            "distance_threshold = 5",
-            "length_threshold = 4",
-            "min_sl = 20",
-            "stat = 'mean'",
-            "return_idx = false",
+            "n_points = [N_POINTS]",
+            "clean_rounds = [CLEAN_ROUNDS]",
+            "distance_threshold = [DISTANCE_THRESHOLD]",
+            "length_threshold = [LENGTH_THRESHOLD]",
+            "min_sl = [MIN_SL]",
+            "stat = '[STAT]'",
+            "return_idx = [CLEANING_RETURN_IDX]",
             "",
             "[compute]",
             "dask_it = [DASK_IT]",
