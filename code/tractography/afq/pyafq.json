@@ -13,7 +13,7 @@
         "id": "bundles_group",
         "name": "Bundles Group",
         "description": "Parameters related to bundles of interest.",
-        "members": ["bundles", "bundle_seg_algo", "scalars_model", "scalars"]
+        "members": ["bundles", "bundles_seg_algo", "scalars_model", "scalars"]
     },
     {
         "id": "tracking_group",
@@ -288,11 +288,11 @@
         "optional": true
     },
     {
-        "id": "prune_thr",
-        "name": "prune thr",
+        "id": "pruning_thr",
+        "name": "pruning thr",
         "type": "Number",
         "integer": true,
-        "value-key": "[PRUNE_THR]",
+        "value-key": "[PRUNING_THR]",
         "default-value": 6,
         "optional": true
     },
