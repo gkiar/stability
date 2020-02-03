@@ -52,5 +52,8 @@ do
     docker run -ti -v ${DERIV_RECO}:${DERIV_RECO} ${DOCKER_CMD} ${aseg} ${asegnii} 
     flirt -applyxfm -in ${asegnii} -init ${xfm} -out ${outasegnii} -ref ${dwibrain} -paddingsize 0.0 -interp trilinear
 
+    echo finished session!
   done
 done
+
+echo finished all!
