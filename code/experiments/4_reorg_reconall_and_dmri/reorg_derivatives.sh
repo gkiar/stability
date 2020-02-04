@@ -59,6 +59,7 @@ do
       docker run -ti -v ${DERIV_RECO}:${DERIV_RECO} ${DOCKER_CMD} ${aseg} ${asegnii} 
     fi
 
+    python resample.py ${asegnii} ${outt1w} --interp nearest
     flirt -applyxfm -in ${asegnii} -init ${xfm} -out ${outasegnii} -ref ${outt1w} -paddingsize 0.0 -interp nearest
 
     echo finished session!
