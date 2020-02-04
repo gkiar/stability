@@ -42,15 +42,24 @@ do
     dwibrain=${DERIV_DMRI}/${sub}/${ses}/dwi/${sub}_${ses}_dwi_brain_mask.nii.gz
     t1w=${RAW}/${sub}/${ses}/anat/${sub}_${ses}_T1w.nii.gz
     outt1w=${DERIV_NEW}/${sub}/${ses}/anat/${sub}_${ses}_T1w.nii.gz
-    flirt -applyxfm -in ${t1w} -init ${xfm} -out ${outt1w} -ref ${dwibrain} -paddingsize 0.0 -interp trilinear
+
+    if [ ! -f ${outt1w} ]
+    then
+      flirt -applyxfm -in ${t1w} -init ${xfm} -out ${outt1w} -ref ${dwibrain} -paddingsize 0.0 -interp trilinear
+    fi
 
     # reco:  mri/ aparc+aseg.mgz ->  mri_convert " aparc+aseg.nii.gz
     #        mri/ aparc+aseg.nii.gz -> ", after alignment
     aseg=${DERIV_RECO}/${sub}_${ses}_T1w-*-1/mri/aparc+aseg.mgz
     asegnii=`echo ${aseg} | rev | cut -d'.' -f2- | rev`.nii.gz
     outasegnii=${DERIV_NEW}/${sub}/${ses}/anat/${sub}_${ses}_T1w_aparc+aseg.nii.gz
-    docker run -ti -v ${DERIV_RECO}:${DERIV_RECO} ${DOCKER_CMD} ${aseg} ${asegnii} 
-    flirt -applyxfm -in ${asegnii} -init ${xfm} -out ${outasegnii} -ref ${dwibrain} -paddingsize 0.0 -interp trilinear
+
+    if [ ! -f ${asegnii} ]
+    then
+      docker run -ti -v ${DERIV_RECO}:${DERIV_RECO} ${DOCKER_CMD} ${aseg} ${asegnii} 
+    fi
+
+    flirt -applyxfm -in ${asegnii} -init ${xfm} -out ${outasegnii} -ref ${outt1w} -paddingsize 0.0 -interp nearest
 
     echo finished session!
   done
