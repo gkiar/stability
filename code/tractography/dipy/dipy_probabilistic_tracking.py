@@ -151,8 +151,7 @@ def streamlines2graph(streamlines, affine, parcellation, output_file):
     np.savetxt(output_file + ".mat", graph)
     with open(output_file + "_mapping.json", "w") as fhandle:
         for k in map_keys:
-            print(k)
-            # ignore background fibers and self loops in mapping
+            # ignore background fibers
             if 0 in k:
                 continue
             v = mapping[k]
