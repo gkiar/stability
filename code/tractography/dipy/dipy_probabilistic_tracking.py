@@ -22,6 +22,7 @@ from onevox.cli import driver as ov
 import nibabel as nib
 import numpy as np
 import os.path as op
+import os
 import json
 import matplotlib
 matplotlib.use('AGG')
@@ -229,6 +230,13 @@ def main(args=None):
 
     verbose = results.verbose
     image = results.diffusion_image
+    bn = op.basename(image).split('.')[0]
+    outdir = op.join(results.output_directory,
+                     bn.split("_")[0],
+                     bn.split("_")[1],
+                     "dwi")
+    os.makedirs(outdir)
+
     noised = True if image.endswith(".json") else False
     if noised:
         noise_file = image
@@ -238,15 +246,11 @@ def main(args=None):
 
         # Apply noise to image
         in_image = noise_data["base_image"]
-        ov(in_image, results.output_directory,
-           apply_noise=noise_file, verbose=results.verbose)
-
+        ov(in_image, outdir, apply_noise=noise_file, verbose=results.verbose)
         image = noise_file.replace('.json', '.nii.gz')
 
-    bn = op.basename(image).split('.')[0]
     rs = results.random_seed
-    fibers = op.join(results.output_directory,
-                     bn + "_fibers_rs{0}".format(rs))
+    fibers = op.join(outdir, "{0}_fibers_rs{1}".format(bn, rs))
     if not op.isfile(fibers + ".trk"):
         wrap_fuzzy_failures(dwi_probabilistic_tracing,
                             args=[image, results.bvecs, results.bvals,
@@ -254,7 +258,7 @@ def main(args=None):
                                   fibers],
                             kwargs={"plot": results.streamline_plot,
                                     "verbose": verbose,
-                                    "rseed": results.random_seed},
+                                    "rseed": rs},
                             errortype=Exception,
                             failure_threshold=5,
                             verbose=verbose)
@@ -266,14 +270,14 @@ def main(args=None):
         graphs = []
         for label in results.labels:
             labelbn = op.basename(label).split('.')[0].split("_")[-1]
-            graphs += [op.join(results.output_directory,
-                               "{0}_graph_rs{1}_{2}".format(bn, rs, labelbn))]
+            graphs += [op.join(outdir, "{0}_graph_rs{1}_{2}".format(bn,
+                                                                    rs,
+                                                                    labelbn))]
             streamlines2graph(streamlines, tractog.affine, label, graphs[-1])
 
     if noised:
         # Delete noisy image
-        ov(image, results.output_directory, clean=True,
-           apply_noise=noise_file, verbose=verbose)
+        ov(image, outdir, clean=True, apply_noise=noise_file, verbose=verbose)
 
     if verbose:
         print("Streamlines: {0}".format(fibers))
