@@ -1,4 +1,5 @@
 # Project specific ignores
+license.txt
 *.swp
 *.simg
 *.DS_Store
