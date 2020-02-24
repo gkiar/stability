@@ -244,8 +244,9 @@ def main(args=None):
         image = noise_file.replace('.json', '.nii.gz')
 
     bn = op.basename(image).split('.')[0]
+    rs = results.random_seed
     fibers = op.join(results.output_directory,
-                     bn + "_fibers_" + str(results.random_seed))
+                     bn + "_fibers_rs{0}".format(rs))
     if not op.isfile(fibers + ".trk"):
         wrap_fuzzy_failures(dwi_probabilistic_tracing,
                             args=[image, results.bvecs, results.bvals,
@@ -258,16 +259,16 @@ def main(args=None):
                             failure_threshold=5,
                             verbose=verbose)
 
-    s_tractogram = load_trk(fibers + ".trk", 'same', Space.RASMM)
-    streamlines = s_tractogram.streamlines
+    tractog = load_trk(fibers + ".trk", 'same', Space.RASMM)
+    streamlines = tractog.streamlines
 
     if results.labels:
         graphs = []
         for label in results.labels:
-            labelbn = op.basename(label).split('.')[0]
+            labelbn = op.basename(label).split('.')[0].split("_")[-1]
             graphs += [op.join(results.output_directory,
-                               bn + "_graph_{0}-".format(results.random_seed) + labelbn)]
-            streamlines2graph(streamlines, s_tractogram.affine, label, graphs[-1])
+                               "{0}_graph_rs{1}_{2}".format(bn, rs, labelbn))]
+            streamlines2graph(streamlines, tractog.affine, label, graphs[-1])
 
     if noised:
         # Delete noisy image
