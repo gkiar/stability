@@ -1,16 +1,17 @@
-# FROM gkiar/fuzzy-python:fuzzless
-FROM pablooliveira/fuzzy-python:latest
+FROM gkiar/fuzzy:ubuntu14.04-python-dipy-afq
 
-RUN apt-get update -qqq &&\
+ENV VFC_BACKENDS "libinterflop_ieee.so"
+
+RUN rm -rf /etc/apt/sources.list.d/ &&\
+    apt-get update -qqq &&\
     apt-get install -y libhdf5-dev &&\
     rm -rf /var/lib/apt/lists/
 
 RUN pip3.6 install scipy cython &&\
-    pip3.6 install nibabel matplotlib onevox boutiques &&\
-    pip3.6 install dipy==0.16.0
+    pip3.6 install nibabel matplotlib onevox boutiques dipy fury
 
-COPY ./dipy_deterministic_tracking.py /opt/dipy_deterministic_tracking.py
+COPY ./dipy_tracking.py /opt/dipy_tracking.py
 
-ENV VERIFICARLO_MCAMODE RR
+ENV VFC_BACKENDS "libinterflop_mca.so -m rr"
 
-ENTRYPOINT ["python3.6", "/opt/dipy_deterministic_tracking.py"]
+ENTRYPOINT ["python3.6", "/opt/dipy_tracking.py"]
