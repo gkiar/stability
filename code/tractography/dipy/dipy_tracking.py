@@ -34,7 +34,7 @@ import matplotlib.pyplot as plt
 def make_descriptor(parser, arguments=None):
     import boutiques.creator as bc
 
-    basename = "dipy_deterministic_tracking.py"
+    basename = "dipy_tracking"
     desc = bc.CreateDescriptor(parser, execname=op.basename(basename),
                                tags={"domain": ["neuroinformatics",
                                                 "image processing",
