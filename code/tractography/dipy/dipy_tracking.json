@@ -254,5 +254,6 @@
             "fuzzy"
         ]
     },
-    "tool-version": "v0.4.0"
+    "tool-version": "v0.4.0",
+    "doi": "zenodo.3698230"
 }
