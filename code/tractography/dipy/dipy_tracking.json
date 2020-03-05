@@ -1,18 +1,17 @@
 {
     "author": "Greg Kiar <gkiar.github.io>",
-    "command-line": "dipy_deterministic_tracking.py [DIFFUSION_IMAGE] [BVECS] [BVALS] [WHITEMATTER_MASK] [SEED_MASK] [OUTPUT_DIRECTORY] [LABELS] [VERBOSE] [PROB] [PRUNE] [RANDOM_SEED] [STREAMLINE_PLOT] [BOUTIQUES]",
+    "command-line": "python3.6 /opt/dipy_tracking.py [DIFFUSION_IMAGE] [BVECS] [BVALS] [WHITEMATTER_MASK] [SEED_MASK] [OUTPUT_DIRECTORY] [LABELS] [VERBOSE] [PROB] [PRUNE] [RANDOM_SEED] [STREAMLINE_PLOT] [BOUTIQUES]",
     "container-image": {
         "image": "gkiar/dipy_tracking:v0.4.0",
         "index": "index.docker.io",
         "type": "docker"
     },
     "description": "Pipeline for generating streamlines and creating connectomes from preprocessed diffusion images using Dipy. This tool is the boilerplate tractography provided within Dipy.",
-    "doi": "10.5281/zenodo.3692005",
     "environment-variables": [
         {
-            "description": "The virtual precision used for the floating point operations. It accepts an integer value that represents the virtual precision at which MCA operations are performed. Its default value is 53",
+            "description": "The back-end and virtual precision used for the floating point operations. 'libinterflop_mca.so -m rr' is the default ",
             "name": "VFC_BACKENDS",
-            "value": "libinterflop_mca.so -m rr"
+            "value": "[VFC_BACKENDS]"
         }
     ],
     "inputs": [
@@ -133,6 +132,14 @@
             "optional": true,
             "type": "Flag",
             "value-key": "[BOUTIQUES]"
+        },
+        {
+            "default-value": "libinterflop_mca.so -m rr",
+            "id": "VFC_BACKENDS",
+            "name": "VFC Backends",
+            "optional": true,
+            "type": "File",
+            "value-key": "[VFC_BACKENDS]"
         }
     ],
     "name": "Dipy Tracking and Connectome Generation",
@@ -140,10 +147,10 @@
         {
             "conditional-path-template": [
                 {
-                    "prob": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED].trk"
+                    "prob": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED].trk"
                 },
                 {
-                    "default": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED].trk"
+                    "default": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED].trk"
                 }
             ],
             "id": "fibers",
@@ -158,10 +165,10 @@
         {
             "conditional-path-template": [
                 {
-                    "prob": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED].png"
+                    "prob": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED].png"
                 },
                 {
-                    "default": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED].png"
+                    "default": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED].png"
                 }
             ],
             "id": "fibers_plot",
@@ -176,10 +183,10 @@
         {
             "conditional-path-template": [
                 {
-                    "prob": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED]_*.mat"
+                    "prob": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED]_*.mat"
                 },
                 {
-                    "default": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED]_*.mat"
+                    "default": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED]_*.mat"
                 }
             ],
             "id": "graph",
@@ -195,10 +202,10 @@
         {
             "conditional-path-template": [
                 {
-                    "prob": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED]_*.png"
+                    "prob": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED]_*.png"
                 },
                 {
-                    "default": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED]_*.png"
+                    "default": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED]_*.png"
                 }
             ],
             "id": "graph_plot",
@@ -214,10 +221,10 @@
         {
             "conditional-path-template": [
                 {
-                    "prob": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED]_*_mapping.json"
+                    "prob": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_prob_rs[RANDOM_SEED]_*_mapping.json"
                 },
                 {
-                    "default": "[OUTPUT_DIRECTORY]/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED]_*_mapping.json"
+                    "default": "[OUTPUT_DIRECTORY]/*/*/dwi/[DIFFUSION_IMAGE]_det_rs[RANDOM_SEED]_*_mapping.json"
                 }
             ],
             "id": "graph_edge_mapping",
