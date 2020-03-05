@@ -1,3 +1,6 @@
 [submodule "code/submodules/fslwrappers"]
 	path = code/submodules/fslwrappers
 	url = https://github.com/gkiar/fslwrappers
+[submodule "code/experiments/paper1_analytical_impact/3_analysis"]
+	path = code/experiments/paper1_analytical_impact/3_analysis
+	url = https://github.com/gkiar/stability-impact
