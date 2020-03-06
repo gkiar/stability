@@ -61,7 +61,6 @@ def main():
     pttn = op.join(indir, 'sub-*', 'ses-*', 'dwi', '*dwi*.nii.gz')
     basenames = sorted(glob(pttn))
 
-    print(basenames)
     with open(invo) as fhandle:
         template = json.load(fhandle)
 
