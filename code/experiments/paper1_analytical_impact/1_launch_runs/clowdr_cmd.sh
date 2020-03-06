@@ -1,13 +1,13 @@
 #!/bin/bash
 
 datapath=/project/6008063/gkiar/data/RocklandSample/derivatives/
-baseopts="-v ${datapath}:${datapath} -cluster slurm --clusterargs account:rpp-aevans-ab,time:02:00:00,mem:4096 -V --simg ~/gkiar-dipy_tracking-v0.4.0.simg"
+baseopts="-v ${datapath}:${datapath} -cluster slurm --clusterargs account:rpp-aevans-ab,time:02:00:00,mem:4096 -V --simg ~/gkiar-dipy_tracking-v0.4.0.simg --setup"
 
 #--------------------------------------------
 
 # Variance: Multi Pipeline
 ### Generate invocations
-python create_invocations.py ${datapath}/dmriprep_ds ${datapath}/connectomes_ds example.json 20 multi_pipeline
+python create_invocations.py ${datapath}/preproc_ds ${datapath}/connectomes_ds example.json 20 multi_pipeline
 
 ### Launch reference tasks
 invodir="./invocations-multi_pipeline-ref"
@@ -23,7 +23,7 @@ clowdr local dipy_tracking.json ${invodir} ${clowdir} ${baseopts} -g 2 --sweep "
 
 # Variance: Multi Seed
 ### Generate invocations
-python create_invocations.py ${datapath}/dmriprep_ds ${datapath}/connectomes_ds example.json 10 multi_seed
+python create_invocations.py ${datapath}/preproc_ds ${datapath}/connectomes_ds example.json 10 multi_seed
 
 ### Launch reference tasks
 invodir="./invocations-multi_seed-ref"
@@ -39,7 +39,7 @@ clowdr local dipy_tracking.json ${invodir} ${clowdir} ${baseopts} -g 2 --sweep "
 
 # Signal: Age/BMI
 ### Generate invocations
-python create_invocations.py ${datapath}/dmriprep_ds ${datapath}/connectomes    example.json 20 age_bmi
+python create_invocations.py ${datapath}/preproc_100 ${datapath}/connectomes example.json 20 age_bmi
 
 ### Launch reference tasks
 invodir="./invocations-age_bmi-ref"
