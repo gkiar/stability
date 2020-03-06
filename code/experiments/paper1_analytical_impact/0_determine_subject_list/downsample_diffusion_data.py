@@ -46,7 +46,6 @@ def main():
 
         eve_bvec = [[val for idx, val in enumerate(line.split()) if idx in eve_loc] for line in bvecs]
         odd_bvec = [[val for idx, val in enumerate(line.split()) if idx in odd_loc] for line in bvecs]
-        print(eve_bvec)
         with open(fl[1].replace(".bvecs", "_e.bvecs"), 'w') as fhandle:
             for line in eve_bvec: fhandle.write(" ".join(str(v) for v in line) + "\n")
         with open(fl[1].replace(".bvecs", "_o.bvecs"), 'w') as fhandle:
