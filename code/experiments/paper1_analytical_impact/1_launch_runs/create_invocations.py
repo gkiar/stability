@@ -16,7 +16,7 @@ def get_files(basenames, template, exp):
 
         tinv["diffusion_image"] = fl
         tinv["bvecs"] = fl.replace(".nii.gz", ".bvecs")
-        tinv["bvals"] = fl.replace(".nii.gz", ".bvecs")
+        tinv["bvals"] = fl.replace(".nii.gz", ".bvals")
         tinv["labels"] = fl.replace("dwi/", "anat/").replace("dwi", "T1w_dkt")
         if exp.startswith("multi"):
             tinv["labels"] = tinv["labels"].replace("_o.n",
