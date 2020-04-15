@@ -1,0 +1,6 @@
+{
+    "algorithm": "csd",
+    "dwi": "example_dwi.mif",
+    "response": "example_response.txt",
+    "odf": "example_odf.nii.gz"
+}

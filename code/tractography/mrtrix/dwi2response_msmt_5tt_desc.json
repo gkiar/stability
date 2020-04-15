@@ -1,0 +1,312 @@
+{
+    "command-line": "dwi2response msmt_5tt [SHELLS] [LMAX] [MASK] [VOXELS] [GRAD] [FSLGRAD] [BVECS] [BVALS] [CONTINUE] [CTEMPDIR] [LASTFILE] [FORCE] [HELP] [NOCLEANUP] [NTHREADS] [TEMPDIR] [QUIET] [INFO] [DEBUG] [DIRS] [FA] [SFWM_FA_THRESHOLD] [WM_ALGO] [PVF] [INPUT] [IN_5TT] [OUT_WM] [OUT_GM] [OUT_CSF]",
+    "container-image": {
+        "image": "darrinfong/mrtrix3:latest",
+        "index": "index.docker.io",
+        "type": "docker"
+    },
+    "tool-version": "3.0_RC3_latest",
+    "schema-version": "0.5",
+    "description": "Derive MSMT-CSD tissue response functions based on a co-registered five- tissue-type (5TT) image",
+    "name": "dwi2response msmt_5tt",
+    "inputs": [
+        {
+            "command-line-flag": "-shells",
+            "description": "The b-value shell(s) to use in response function estimation (single value for single-shell response, comma-separated list for multi-shell response)",
+            "id": "shells",
+            "name": "Diffusion-weighted gradient shell(s)",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "value-key": "[SHELLS]"
+        },
+        {
+            "command-line-flag": "-lmax",
+            "description": "The maximum harmonic degree(s) of response function estimation (single value for single-shell response, comma-separated list for multi-shell response)",
+            "id": "lmax",
+            "name": "Maximum harmonic degree",
+            "optional": true,
+            "list": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[LMAX]"
+        },
+        {
+            "command-line-flag": "-mask",
+            "description": "Provide an initial mask for response voxel selection",
+            "id": "mask",
+            "name": "Initial mask image",
+            "optional": true,
+            "type": "File",
+            "value-key": "[MASK]"
+        },
+        {
+            "command-line-flag": "-voxels",
+            "description": "Output an image showing the final voxel selection(s)",
+            "id": "voxels",
+            "name": "single-fiber voxels",
+            "optional": true,
+            "type": "File",
+            "value-key": "[VOXELS]"
+        },
+        {
+            "command-line-flag": "-grad",
+            "description": "Pass the diffusion gradient table in MRtrix format",
+            "id": "grad",
+            "name": "grad",
+            "optional": true,
+            "type": "File",
+            "value-key": "[GRAD]"
+        },
+        {
+            "command-line-flag": "-fslgrad",
+            "description": "Pass the diffusion gradient table in FSL bvecs/bvals format",
+            "id": "fslgrad",
+            "name": "fslgrad",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FSLGRAD]",
+            "requires-inputs": ["bvecs", "bvals"]
+        },
+        {
+            "description": "Pass the diffusion gradient table in FSL bvecs format",
+            "id": "bvecs",
+            "name": "bvecs",
+            "optional": true,
+            "type": "File",
+            "value-key": "[BVECS]",
+            "requires-inputs": ["fslgrad", "bvals"]
+        },
+        {
+            "description": "Pass the diffusion gradient table in FSL bvals format",
+            "id": "bvals",
+            "name": "bvals",
+            "optional": true,
+            "type": "File",
+            "value-key": "[BVALS]",
+            "requires-inputs": ["fslgrad", "bvecs"]
+        },
+        {
+            "command-line-flag": "-continue",
+            "description": "Continue the script from a previous execution; must provide the temporary directory path, and the name of the last successfully-generated file",
+            "id": "continue",
+            "name": "continue",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[CONTINUE]",
+            "requires-inputs": ["ctempdir",  "lastfile"]
+        },
+        {
+            "description": "Temporary directory path",
+            "id": "ctempdir",
+            "name": "Temporary directory path",
+            "optional": true,
+            "type": "File",
+            "value-key": "[CTEMPDIR]",
+            "requires-inputs": ["continue",  "lastfile"]
+        },
+        {
+            "description": "Path to last successfully-generated file",
+            "id": "lastfile",
+            "name": "Last successfully-generated file",
+            "optional": true,
+            "type": "File",
+            "value-key": "[LASTFILE]",
+            "requires-inputs": ["continue",  "ctempdir"]
+        },
+        {
+            "command-line-flag": "-force",
+            "description": "Force overwrite of output files if pre-existing",
+            "id": "force",
+            "name": "force",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FORCE]"
+        },
+        {
+            "command-line-flag": "-help",
+            "description": "Display help information for the script",
+            "id": "help",
+            "name": "help",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[HELP]"
+        },
+        {
+            "command-line-flag": "-nocleanup",
+            "description": "Do not delete temporary files during script, or temporary directory at script completion",
+            "id": "nocleanup",
+            "name": "nocleanup",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[NOCLEANUP]"
+        },
+        {
+            "command-line-flag": "-nthreads",
+            "description": "Use this number of threads in MRtrix multi-threaded applications (0 disables multi-threading)",
+            "id": "nthreads",
+            "name": "nthreads",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[NTHREADS]"
+        },
+        {
+            "command-line-flag": "-tempdir",
+            "description": "Manually specify the path in which to generate the temporary directory",
+            "id": "tempdir",
+            "name": "tempdir",
+            "optional": true,
+            "type": "File",
+            "value-key": "[TEMPDIR]"
+        },
+        {
+            "command-line-flag": "-quiet",
+            "description": "Suppress all console output during script execution",
+            "id": "quiet",
+            "name": "quiet",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[QUIET]",
+            "disables-inputs": ["info", "debug"]
+        },
+        {
+            "command-line-flag": "-info",
+            "description": "Display additional information and progress for every command invoked",
+            "id": "info",
+            "name": "info",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[INFO]",
+            "disables-inputs": ["quiet", "debug"]
+        },
+        {
+            "command-line-flag": "-debug",
+            "description": "Display additional debugging information over and above the output of -info",
+            "id": "debug",
+            "name": "debug",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[DEBUG]",
+            "disables-inputs": ["info", "quiet"]
+        },
+        {
+            "id": "dirs",
+            "name": "dirs",
+            "description": "Manually provide the fibre direction in each voxel (a tensor fit will be used otherwise)",
+            "optional": true,
+            "value-key": "[DIRS]",
+            "type": "String",
+            "command-line-flag": "-dirs"
+        },
+        {
+            "id": "fa",
+            "name": "fa",
+            "description": "Upper fractional anisotropy threshold for GM and CSF voxel selection (default: 0.2)",
+            "optional": true,
+            "value-key": "[FA]",
+            "type": "Number",
+            "default-value": 0.2,
+            "command-line-flag": "-fa"
+        },
+        {
+            "id": "sfwm_fa_threshold",
+            "name": "sfwm fa threshold",
+            "description": "Sets -wm_algo to fa and allows to specify a hard FA threshold for single- fibre WM voxels, which is passed to the -threshold option of the fa algorithm (warning: overrides -wm_algo option)",
+            "optional": true,
+            "value-key": "[SFWM_FA_THRESHOLD]",
+            "type": "Number",
+            "command-line-flag": "-sfwm_fa_threshold"
+        },
+        {
+            "id": "wm_algo",
+            "name": "wm algo",
+            "description": "dwi2response algorithm to use for WM single-fibre voxel selection (default: tournier)",
+            "optional": true,
+            "value-key": "[WM_ALGO]",
+            "type": "String",
+            "value-choices": ["dhollander", "fa", "manual", "msmt_5tt", "tax", "tournier"],
+            "default-value": "tournier",
+            "command-line-flag": "-wm_algo"
+        },
+        {
+            "id": "pvf",
+            "name": "pvf",
+            "description": "Partial volume fraction threshold for tissue voxel selection (default: 0.95)",
+            "optional": true,
+            "value-key": "[PVF]",
+            "type": "Number",
+            "default-value": 0.95,
+            "command-line-flag": "-pvf"
+        },
+        {
+            "id": "input",
+            "name": "input",
+            "description": "The input DWI",
+            "optional": false,
+            "value-key": "[INPUT]",
+            "type": "File"
+        },
+        {
+            "id": "in_5tt",
+            "name": "in 5tt",
+            "description": "Input co-registered 5TT image",
+            "optional": false,
+            "value-key": "[IN_5TT]",
+            "type": "File"
+        },
+        {
+            "id": "out_wm",
+            "name": "out wm",
+            "description": "Output WM response text file",
+            "optional": false,
+            "value-key": "[OUT_WM]",
+            "type": "String"
+        },
+        {
+            "id": "out_gm",
+            "name": "out gm",
+            "description": "Output GM response text file",
+            "optional": false,
+            "value-key": "[OUT_GM]",
+            "type": "String"
+        },
+        {
+            "id": "out_csf",
+            "name": "out csf",
+            "description": "Output CSF response text file",
+            "optional": false,
+            "value-key": "[OUT_CSF]",
+            "type": "String"
+        }
+    ],
+    "output-files": [
+        {
+            "id": "output_wm",
+            "name": "Output WM response text file",
+            "optional": false,
+            "path-template": "[OUT_WM].txt",
+            "path-template-stripped-extensions": [
+                ".txt"
+            ]
+        },
+        {
+            "id": "output_gm",
+            "name": "Output GM response text file",
+            "optional": false,
+            "path-template": "[OUT_GM].txt",
+            "path-template-stripped-extensions": [
+                ".txt"
+            ]
+        },
+        {
+            "id": "output_csf",
+            "name": "Output CSF response text file",
+            "optional": false,
+            "path-template": "[OUT_CSF].txt",
+            "path-template-stripped-extensions": [
+                ".txt"
+            ]
+        }
+    ]
+}

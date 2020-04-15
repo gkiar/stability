@@ -1,0 +1,294 @@
+{
+    "author": "Darrin Fong",
+    "command-line": "tckedit [INCLUDE_BIN_MASK] [INCLUDE_SPHERE] [EXCLUDE_BIN_MASK] [EXCLUDE_SPHERE] [MASK_BIN_MASK] [MASK_SPHERE] [MAXLENGTH] [MINLENGTH] [NUMBER] [SKIP] [MAXWEIGHT] [MINWEIGHT] [INVERSE] [ENDS_ONLY] [TCK_WEIGHTS_IN] [TCK_WEIGHTS_OUT] [INFO] [QUIET] [DEBUG] [FORCE] [NTHREADS] [HELP] [VERSION] [TRACKS_IN] [TRACKS_OUT]",
+    "container-image": {
+        "image": "darrinfong/mrtrix3:latest",
+        "index": "index.docker.io",
+        "type": "docker"
+    },
+    "name": "tckedit Track editor",
+    "description": "Perform various editing operations on track files.",
+    "inputs": [
+        {
+            "command-line-flag": "-include",
+            "description": "Specify an inclusion region of interest, as either a binary mask image. Streamlines must traverse ALL inclusion regions to be accepted.",
+            "id": "include_bin_mask",
+            "name": "include binary mask region",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["include_sphere"],
+            "value-key": "[INCLUDE_BIN_MASK]"
+        },
+        {
+            "command-line-flag": "-include",
+            "description": "Specify an inclusion region of interest, as a sphere using 4 comma-separared values (x,y,z,radius). Streamlines must traverse ALL inclusion regions to be accepted.",
+            "id": "include_sphere",
+            "name": "include sphere region",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "disables-inputs": ["include_bin_mask"],
+            "value-key": "[INCLUDE_SPHERE]"
+        },
+        {
+            "command-line-flag": "-exclude",
+            "description": "Specify an exclusion region of interest, as either a binary mask image. Streamlines that enter ANY exclude region will be discarded.",
+            "id": "exclude_bin_mask",
+            "name": "exclude binary mask region",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["exclude_sphere"],
+            "value-key": "[EXCLUDE_BIN_MASK]"
+        },
+        {
+            "command-line-flag": "-exclude",
+            "description": "Specify an exclusion region of interest, as a sphere using 4 comma-separared values (x,y,z,radius). Streamlines that enter ANY exclude region will be discarded.",
+            "id": "exclude_sphere",
+            "name": "exclude sphere region",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "disables-inputs": ["exclude_bin_mask"],
+            "value-key": "[EXCLUDE_SPHERE]"
+        },
+        {
+            "command-line-flag": "-mask",
+            "description": "Specify a masking region of interest, as either a binary mask image. If defined, streamlines exiting the mask will be truncated.",
+            "id": "mask_bin_mask",
+            "name": "mask binary mask region",
+            "optional": true,
+            "type": "File",
+            "disables-inputs": ["mask_sphere"],
+            "value-key": "[MASK_BIN_MASK]"
+        },
+        {
+            "command-line-flag": "-mask",
+            "description": "Specify a masking region of interest, as a sphere using 4 comma-separared values (x,y,z,radius). If defined, streamlines exiting the mask will be truncated.",
+            "id": "mask_sphere",
+            "name": "mask sphere region",
+            "optional": true,
+            "list": true,
+            "type": "Number",
+            "disables-inputs": ["mask_bin_mask"],
+            "value-key": "[MASK_SPHERE]"
+        },
+        {
+            "command-line-flag": "-maxlength",
+            "description": "Set the maximum length of any streamline in mm",
+            "id": "maxlength",
+            "name": "maxlength",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[MAXLENGTH]"
+        },
+        {
+            "command-line-flag": "-minlength",
+            "description": "Set the minimum length of any streamline in mm",
+            "id": "minlength",
+            "name": "minlength",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[MINLENGTH]"
+        },
+        {
+            "command-line-flag": "-number",
+            "description": "Set the desired number of selected streamlines to be propagated to the output file",
+            "id": "number",
+            "name": "number",
+            "optional": true,
+            "integer":true,
+            "type": "Number",
+            "value-key": "[NUMBER]"
+        },
+        {
+            "command-line-flag": "-skip",
+            "description": "Omit this number of selected streamlines before commencing writing to the output file",
+            "id": "skip",
+            "name": "skip",
+            "optional": true,
+            "integer":true,
+            "type": "Number",
+            "value-key": "[SKIP]"
+        },
+        {
+            "command-line-flag": "-maxweight",
+            "description": "Set the maximum weight of any streamline",
+            "id": "maxweight",
+            "name": "maxweight",
+            "optional": true,
+            "type": "Number",
+            "value-key": "[MAXWEIGHT]"
+        },
+        {
+            "command-line-flag": "-minweight",
+            "description": "Set the minimum weight of any streamline",
+            "id": "minweight",
+            "name": "minweight",
+            "optional": true,
+            "type": "Number",
+            "value-key": "[MINWEIGHT]"
+        },
+        {
+            "command-line-flag": "-inverse",
+            "description": "Output the inverse selection of streamlines based on the criteria provided, i.e. only those streamlines that fail at least one criterion will be written to file.",
+            "id": "inverse",
+            "name": "inverse",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[INVERSE]"
+        },
+        {
+            "command-line-flag": "-ends_only",
+            "description": "Only test the ends of each streamline against the provided include/exclude ROIs",
+            "id": "ends_only",
+            "name": "Ends only",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[ENDS_ONLY]"
+        },
+        {
+            "command-line-flag": "-tck_weights_in",
+            "description": "Specify a text scalar file containing the streamline weights",
+            "id": "tck_weights_in",
+            "name": "tck_weights_in",
+            "optional": true,
+            "type": "File",
+            "value-key": "[TCK_WEIGHTS_IN]"
+        },
+        {
+            "command-line-flag": "-tck_weights_out",
+            "description": "Specify the path for an output text scalar file containing streamline weights",
+            "id": "tck_weights_out",
+            "name": "tck_weights_out",
+            "optional": true,
+            "type": "String",
+            "value-key": "[TCK_WEIGHTS_OUT]"
+        },
+        {
+            "command-line-flag": "-info",
+            "description": "Display information messages.",
+            "id": "info",
+            "name": "info",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[INFO]",
+            "disables-inputs": ["quiet", "debug"]
+        },
+        {
+            "command-line-flag": "-quiet",
+            "description": "Do not display information messages or progress status.",
+            "id": "quiet",
+            "name": "quiet",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[QUIET]",
+            "disables-inputs": ["info", "debug"]
+        },
+        {
+            "command-line-flag": "-debug",
+            "description": "Display debugging messages.",
+            "id": "debug",
+            "name": "debug",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[DEBUG]",
+            "disables-inputs": ["info", "quiet"]
+        },
+        {
+            "command-line-flag": "-force",
+            "description": "Force overwrite of output files. Caution: Using the same file as input and output might cause unexpected behaviour.",
+            "id": "force",
+            "name": "force",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[FORCE]"
+        },
+        {
+            "command-line-flag": "-nthreads",
+            "description": "Use this number of threads in multi-threaded applications (set to 0 to disable multi-threading)",
+            "id": "nthreads",
+            "name": "nthreads",
+            "optional": true,
+            "integer": true,
+            "type": "Number",
+            "value-key": "[NTHREADS]"
+        },
+        {
+            "command-line-flag": "-help",
+            "description": "Display this information page and exit",
+            "id": "help",
+            "name": "help",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[HELP]"
+        },
+        {
+            "command-line-flag": "-version",
+            "description": "Display version information and exit",
+            "id": "version",
+            "name": "version",
+            "optional": true,
+            "type": "Flag",
+            "value-key": "[VERSION]"
+        },
+        {
+            "description": "The input track file(s)",
+            "id": "tracks_in",
+            "name": "tracks_in",
+            "optional": false,
+            "list": true,
+            "type": "File",
+            "value-key": "[TRACKS_IN]"
+        },
+        {
+            "description": "The output track file",
+            "id": "tracks_out",
+            "name": "tracks_out",
+            "optional": false,
+            "type": "String",
+            "value-key": "[TRACKS_OUT]"
+        }
+    ],
+    "output-files": [
+        {
+            "id": "track_output",
+            "name": "Output track file",
+            "description": "The output track file",
+            "optional": false,
+            "path-template": "[TRACKS_OUT].tck",
+            "path-template-stripped-extensions": [
+                ".nii.gz",
+                ".nii",
+                ".tck"
+            ]
+        },
+        {
+            "id": "weights_output",
+            "name": "Streamline weights output",
+            "description": "Text scalar file containing streamline weights",
+            "optional": true,
+            "path-template": "[TCK_WEIGHTS_OUT].txt",
+            "path-template-stripped-extensions": [
+                ".txt"
+            ]
+        }
+    ],
+    "schema-version": "0.5",
+    "suggested-resources": {
+        "cpu-cores": 1,
+        "ram": 2048,
+        "walltime-estimate": 20
+    },
+    "tags": {
+        "domain": [
+            "neuroinformatics",
+            "image processing",
+            "mri",
+            "dwi",
+            "tractography"
+        ]
+    },
+    "tool-version": "v0.1.0"
+}
