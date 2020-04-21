@@ -1,4 +1,4 @@
-FROM gkiar/fuzzy:ubuntu14.04-python-dipy-afq
+FROM gkiar/fuzzy:python-dipy-afq
 
 ENV VFC_BACKENDS "libinterflop_ieee.so"
 
@@ -8,7 +8,7 @@ RUN rm -rf /etc/apt/sources.list.d/ &&\
     rm -rf /var/lib/apt/lists/
 
 RUN pip3.6 install scipy cython &&\
-    pip3.6 install nibabel matplotlib onevox boutiques dipy fury
+    pip3.6 install nibabel matplotlib onevox boutiques
 
 COPY ./dipy_tracking.py /opt/dipy_tracking.py
 
