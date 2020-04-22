@@ -17,13 +17,14 @@ def get_files(basenames, template, exp):
         tinv["diffusion_image"] = fl
         tinv["bvecs"] = fl.replace(".nii.gz", ".bvecs")
         tinv["bvals"] = fl.replace(".nii.gz", ".bvals")
-        tinv["labels"] = fl.replace("dwi/", "anat/").replace("dwi", "T1w_dkt")
+        lab = [fl.replace("dwi/", "anat/").replace("dwi", "T1w_dkt"),
+               fl.replace("dwi/", "anat/").replace("dwi", "T1w_aparc+aseg")]
         if exp.startswith("multi"):
-            tinv["labels"] = tinv["labels"].replace("_o.n",
-                                                    ".n").replace("_e.n", ".n")
-        tinv["whitematter_mask"] = tinv["labels"].replace("dkt", "wm")
-        tinv["seed_mask"] = tinv["labels"].replace("dkt", "wm_boundary")
-        tinv["labels"] = [tinv["labels"]]
+            tinv["labels"] = [l.replace("_o.n", ".n").replace("_e.n", ".n")
+                              for l in lab]
+
+        tinv["whitematter_mask"] = tinv["labels"][0].replace("dkt", "wm")
+        tinv["seed_mask"] = tinv["labels"][0].replace("dkt", "wm_boundary")
 
         if exp == "multi_pipeline" or exp == "age_bmi":
             tinv["prob"] = [True, False]
