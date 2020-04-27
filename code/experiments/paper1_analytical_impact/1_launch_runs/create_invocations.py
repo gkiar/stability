@@ -22,6 +22,8 @@ def get_files(basenames, template, exp):
         if exp.startswith("multi"):
             tinv["labels"] = [l.replace("_o.n", ".n").replace("_e.n", ".n")
                               for l in lab]
+        else:
+            tinv["labels"] = lab
 
         tinv["whitematter_mask"] = tinv["labels"][0].replace("dkt", "wm")
         tinv["seed_mask"] = tinv["labels"][0].replace("dkt", "wm_boundary")
