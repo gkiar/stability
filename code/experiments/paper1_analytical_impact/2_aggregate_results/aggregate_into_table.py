@@ -13,8 +13,8 @@ warnings.filterwarnings('ignore',
 
 
 def filelist2df(file_list, csv, r):
-    str2list = lambda x: [float(v) for v in eval(x)]
-    mean = lambda x, t: np.mean(x).astype(t)
+    def str2list(x): return [float(v) for v in eval(x)]
+    def mean(x, t): return np.mean(x).astype(t)
 
     df = pd.read_csv(csv)
     list_of_dicts = []
@@ -83,6 +83,7 @@ def main(args=None):
     mat_files = glob(op.join(gd, '*', '*', '*', 'dwi', '*dkt.mat'))
     df_graphs = filelist2df(mat_files, csv, r)
 
+    print(len(df_graphs))
     df_graphs.to_hdf(results.output_path, "graphs", mode="a")
 
 
